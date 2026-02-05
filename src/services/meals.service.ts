@@ -36,14 +36,14 @@ function buildUrl(path: string, params?: QueryParams) {
   return url.toString();
 }
 
-async function getCookieHeader() {
+async function getCookieHeader(): Promise<Record<string, string>> {
   const cookieStore = await cookies();
   const cookieHeader = cookieStore
     .getAll()
     .map((c) => `${c.name}=${c.value}`)
     .join("; ");
 
-  return cookieHeader ? { Cookie: cookieHeader } : {};
+  return cookieHeader ? { cookie: cookieHeader } : {};
 }
 
 export type MealsListParams = {
@@ -58,7 +58,7 @@ export type MealsListParams = {
 };
 
 export type CreateMealInput = {
-  providerId: string;
+  providerId?: string;
   categoryId: string;
   title: string;
   description: string;
@@ -160,6 +160,38 @@ export const mealsService = {
       }
 
       return { data: payload as Meal, error: null };
+    } catch (err: any) {
+      return {
+        data: null,
+        error: { message: err?.message ?? "Something went wrong" },
+      };
+    }
+  },
+
+  // DELETE /meals/:id
+  delete: async (id: string): Promise<ServiceResult<{ success: true }>> => {
+    try {
+      const headers = await getCookieHeader();
+
+      const res = await fetch(`${API_URL}/meals/${encodeURIComponent(id)}`, {
+        method: "DELETE",
+        headers,
+        cache: "no-store",
+      });
+
+      const payload = await parseJsonSafe(res);
+
+      if (!res.ok) {
+        return {
+          data: null,
+          error: {
+            message: `Failed to delete meal (HTTP ${res.status})`,
+            detail: payload,
+          },
+        };
+      }
+
+      return { data: { success: true }, error: null };
     } catch (err: any) {
       return {
         data: null,

@@ -2,6 +2,13 @@
 
 import { createProvider } from "@/actions/providers.action";
 import { Button } from "@/components/ui/button";
+import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { useForm } from "@tanstack/react-form";
+import { toast } from "sonner";
+import { z } from "zod";
+
 import {
   Card,
   CardContent,
@@ -10,12 +17,10 @@ import {
   CardHeader,
   CardTitle,
 } from "../ui/card";
-import { Field, FieldError, FieldGroup, FieldLabel } from "../ui/field";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import { useForm } from "@tanstack/react-form";
-import { toast } from "sonner";
-import { z } from "zod";
+import { Field, FieldError, FieldGroup } from "../ui/field";
+
+// ✅ ensure FieldLabel is a real <label> (supports htmlFor)
+export const FieldLabel = Label;
 
 const providerSchema = z.object({
   shopName: z
@@ -25,12 +30,18 @@ const providerSchema = z.object({
   description: z
     .string()
     .max(2000, "Description must be less than 2000 characters")
-    .optional(),
+    .optional()
+    .or(z.literal("")),
   address: z
     .string()
     .max(300, "Address must be less than 300 characters")
-    .optional(),
-  phone: z.string().max(30, "Phone must be less than 30 characters").optional(),
+    .optional()
+    .or(z.literal("")),
+  phone: z
+    .string()
+    .max(30, "Phone must be less than 30 characters")
+    .optional()
+    .or(z.literal("")),
   logoUrl: z
     .string()
     .url("Logo URL must be a valid URL")
@@ -38,29 +49,53 @@ const providerSchema = z.object({
     .or(z.literal("")),
 });
 
+type ProviderFormValues = {
+  shopName: string;
+  description: string;
+  address: string;
+  phone: string;
+  logoUrl: string;
+};
+
+const defaultValues: ProviderFormValues = {
+  shopName: "",
+  description: "",
+  address: "",
+  phone: "",
+  logoUrl: "",
+};
+
 export function CreateProviderFormClient() {
   const form = useForm({
-    defaultValues: {
-      shopName: "",
-      description: "",
-      address: "",
-      phone: "",
-      logoUrl: "",
-    },
+    defaultValues,
+
+    // ✅ fix: wrap zod schema in a validator function (avoids StandardSchema typing issues)
     validators: {
-      onSubmit: providerSchema,
+      onSubmit: ({ value }) => {
+        const result = providerSchema.safeParse(value);
+        if (result.success) return;
+
+        const fe = result.error.flatten().fieldErrors;
+        return Object.fromEntries(
+          Object.entries(fe).map(([k, v]) => [k, v?.[0] ?? "Invalid value"]),
+        );
+      },
     },
+
     onSubmit: async ({ value }) => {
       const toastId = toast.loading("Creating provider...");
 
       try {
-        // call server action
+        const parsed = providerSchema.parse(value);
+
         const res = await createProvider({
-          shopName: value.shopName.trim(),
-          description: value.description?.trim() || null,
-          address: value.address?.trim() || null,
-          phone: value.phone?.trim() || null,
-          logoUrl: value.logoUrl?.trim() || null,
+          shopName: parsed.shopName.trim(),
+          description: parsed.description?.trim()
+            ? parsed.description.trim()
+            : null,
+          address: parsed.address?.trim() ? parsed.address.trim() : null,
+          phone: parsed.phone?.trim() ? parsed.phone.trim() : null,
+          logoUrl: parsed.logoUrl?.trim() ? parsed.logoUrl.trim() : null,
         });
 
         // If action redirects on success, code below only runs on error cases.
@@ -70,8 +105,8 @@ export function CreateProviderFormClient() {
         }
 
         toast.dismiss(toastId);
-      } catch (err) {
-        // if redirect happens, Next navigation occurs; if not, show error
+        form.reset();
+      } catch {
         toast.error("Something went wrong", { id: toastId });
       }
     },
@@ -109,6 +144,7 @@ export function CreateProviderFormClient() {
                       name={field.name}
                       value={field.state.value}
                       onChange={(e) => field.handleChange(e.target.value)}
+                      onBlur={field.handleBlur}
                       placeholder="My Shop"
                     />
                     {isInvalid && (
@@ -133,6 +169,7 @@ export function CreateProviderFormClient() {
                       name={field.name}
                       value={field.state.value}
                       onChange={(e) => field.handleChange(e.target.value)}
+                      onBlur={field.handleBlur}
                       placeholder="Short description..."
                     />
                     {isInvalid && (
@@ -157,6 +194,7 @@ export function CreateProviderFormClient() {
                       name={field.name}
                       value={field.state.value}
                       onChange={(e) => field.handleChange(e.target.value)}
+                      onBlur={field.handleBlur}
                       placeholder="Dhaka, Bangladesh"
                     />
                     {isInvalid && (
@@ -181,6 +219,7 @@ export function CreateProviderFormClient() {
                       name={field.name}
                       value={field.state.value}
                       onChange={(e) => field.handleChange(e.target.value)}
+                      onBlur={field.handleBlur}
                       placeholder="+8801XXXXXXXXX"
                     />
                     {isInvalid && (
@@ -205,6 +244,7 @@ export function CreateProviderFormClient() {
                       name={field.name}
                       value={field.state.value}
                       onChange={(e) => field.handleChange(e.target.value)}
+                      onBlur={field.handleBlur}
                       placeholder="https://example.com/logo.png"
                     />
                     {isInvalid && (

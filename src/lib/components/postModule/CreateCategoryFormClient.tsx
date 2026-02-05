@@ -2,6 +2,8 @@
 
 import { createCategory } from "@/actions/category.action";
 import { Button } from "@/components/ui/button";
+import { Label } from "@/components/ui/label";
+export const FieldLabel = Label;
 
 import { Input } from "@/components/ui/input";
 import { useForm } from "@tanstack/react-form";
@@ -15,7 +17,7 @@ import {
   CardHeader,
   CardTitle,
 } from "../ui/card";
-import { Field, FieldError, FieldGroup, FieldLabel } from "../ui/field";
+import { Field, FieldError, FieldGroup } from "../ui/field";
 
 const categorySchema = z.object({
   name: z

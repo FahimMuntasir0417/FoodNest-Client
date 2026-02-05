@@ -1,25 +1,25 @@
 "use client";
 
 import { createMeal } from "@/actions/meals.action";
-import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { useForm } from "@tanstack/react-form";
+import { toast } from "sonner";
+import { z } from "zod";
+
 import {
   Card,
   CardContent,
   CardDescription,
-  CardFooter,
   CardHeader,
   CardTitle,
 } from "../ui/card";
-import { Field, FieldError, FieldGroup, FieldLabel } from "../ui/field";
-import { Input } from "@/components/ui/input";
+import { Field, FieldError, FieldGroup } from "../ui/field";
 
-import { useForm } from "@tanstack/react-form";
-import { toast } from "sonner";
-import { z } from "zod";
-import { Textarea } from "@/components/ui/textarea";
+export const FieldLabel = Label;
 
 const mealSchema = z.object({
-  providerId: z.string().min(1, "Provider is required"),
   categoryId: z.string().min(1, "Category is required"),
   title: z.string().min(2, "Title must be at least 2 characters").max(200),
   description: z
@@ -36,42 +36,81 @@ const mealSchema = z.object({
   isAvailable: z.coerce.boolean().optional(),
 });
 
-export function CreateMealFormClient() {
+type MealFormValues = {
+  categoryId: string;
+  title: string;
+  description: string;
+  price: string;
+  imageUrl: string;
+  cuisine: string;
+  isAvailable: boolean;
+};
+
+type CreateMealFormClientProps = {
+  categoryId: string;
+};
+
+export function CreateMealFormClient({
+  categoryId,
+}: CreateMealFormClientProps) {
   const form = useForm({
     defaultValues: {
-      providerId: "",
-      categoryId: "",
+      categoryId,
       title: "",
       description: "",
-      price: "" as unknown as number,
+      price: "",
       imageUrl: "",
       cuisine: "",
       isAvailable: true,
-    },
-    validators: { onSubmit: mealSchema },
-    onSubmit: async ({ value }) => {
-      const toastId = toast.loading("Creating meal...");
+    } satisfies MealFormValues,
 
+    validators: {
+      onSubmit: ({ value }) => {
+        const result = mealSchema.safeParse(value);
+        if (result.success) return;
+
+        const fe = result.error.flatten().fieldErrors;
+        return Object.fromEntries(
+          Object.entries(fe).map(([k, v]) => [k, v?.[0] ?? "Invalid value"]),
+        );
+      },
+    },
+
+    onSubmit: async ({ value }) => {
+      console.log("✅ SUBMIT FIRED:", value);
+
+      const toastId = toast.loading("Creating meal...");
       try {
+        const parsed = mealSchema.parse(value);
+
         const res = await createMeal({
-          providerId: value.providerId.trim(),
-          categoryId: value.categoryId.trim(),
-          title: value.title.trim(),
-          description: value.description.trim(),
-          price: Number(value.price),
-          imageUrl: value.imageUrl?.trim() ? value.imageUrl.trim() : null,
-          cuisine: value.cuisine?.trim() ? value.cuisine.trim() : null,
-          isAvailable: value.isAvailable ?? true,
+          categoryId: parsed.categoryId.trim(),
+          title: parsed.title.trim(),
+          description: parsed.description.trim(),
+          price: parsed.price,
+          imageUrl: parsed.imageUrl?.trim() ? parsed.imageUrl.trim() : null,
+          cuisine: parsed.cuisine?.trim() ? parsed.cuisine.trim() : null,
+          isAvailable: parsed.isAvailable ?? true,
         });
 
-        // If action redirects on success, this runs only when error happens.
         if (res?.error) {
           toast.error(res.error.message, { id: toastId });
           return;
         }
 
         toast.dismiss(toastId);
-      } catch {
+
+        form.reset({
+          categoryId,
+          title: "",
+          description: "",
+          price: "",
+          imageUrl: "",
+          cuisine: "",
+          isAvailable: true,
+        });
+      } catch (err) {
+        console.error(err);
         toast.error("Something went wrong", { id: toastId });
       }
     },
@@ -81,60 +120,32 @@ export function CreateMealFormClient() {
     <Card className="w-full max-w-2xl">
       <CardHeader>
         <CardTitle>Create Meal</CardTitle>
-        <CardDescription>Add a new meal for a provider</CardDescription>
+        <CardDescription>Add a new meal</CardDescription>
       </CardHeader>
 
       <CardContent>
+        {/* ✅ method="post" prevents querystring GET submits */}
         <form
           id="meal-form"
+          method="post"
           onSubmit={(e) => {
             e.preventDefault();
+            e.stopPropagation();
             form.handleSubmit();
           }}
         >
           <FieldGroup>
-            <form.Field
-              name="providerId"
-              children={(field) => {
-                const isInvalid =
-                  field.state.meta.isTouched && !field.state.meta.isValid;
-                return (
-                  <Field data-invalid={isInvalid}>
-                    <FieldLabel htmlFor={field.name}>Provider ID</FieldLabel>
-                    <Input
-                      id={field.name}
-                      value={field.state.value}
-                      onChange={(e) => field.handleChange(e.target.value)}
-                      placeholder="provider-id"
-                    />
-                    {isInvalid && (
-                      <FieldError errors={field.state.meta.errors} />
-                    )}
-                  </Field>
-                );
-              }}
-            />
-
+            {/* ✅ Keep categoryId in form state but hidden */}
             <form.Field
               name="categoryId"
-              children={(field) => {
-                const isInvalid =
-                  field.state.meta.isTouched && !field.state.meta.isValid;
-                return (
-                  <Field data-invalid={isInvalid}>
-                    <FieldLabel htmlFor={field.name}>Category ID</FieldLabel>
-                    <Input
-                      id={field.name}
-                      value={field.state.value}
-                      onChange={(e) => field.handleChange(e.target.value)}
-                      placeholder="category-id"
-                    />
-                    {isInvalid && (
-                      <FieldError errors={field.state.meta.errors} />
-                    )}
-                  </Field>
-                );
-              }}
+              children={(field) => (
+                <input
+                  type="hidden"
+                  name={field.name}
+                  value={field.state.value}
+                  onChange={(e) => field.handleChange(e.target.value)}
+                />
+              )}
             />
 
             <form.Field
@@ -142,13 +153,16 @@ export function CreateMealFormClient() {
               children={(field) => {
                 const isInvalid =
                   field.state.meta.isTouched && !field.state.meta.isValid;
+
                 return (
                   <Field data-invalid={isInvalid}>
                     <FieldLabel htmlFor={field.name}>Title</FieldLabel>
                     <Input
                       id={field.name}
+                      name={field.name}
                       value={field.state.value}
                       onChange={(e) => field.handleChange(e.target.value)}
+                      onBlur={field.handleBlur}
                       placeholder="Chicken Biryani"
                     />
                     {isInvalid && (
@@ -164,13 +178,16 @@ export function CreateMealFormClient() {
               children={(field) => {
                 const isInvalid =
                   field.state.meta.isTouched && !field.state.meta.isValid;
+
                 return (
                   <Field data-invalid={isInvalid}>
                     <FieldLabel htmlFor={field.name}>Description</FieldLabel>
                     <Textarea
                       id={field.name}
+                      name={field.name}
                       value={field.state.value}
                       onChange={(e) => field.handleChange(e.target.value)}
+                      onBlur={field.handleBlur}
                       placeholder="Describe the meal..."
                     />
                     {isInvalid && (
@@ -186,16 +203,17 @@ export function CreateMealFormClient() {
               children={(field) => {
                 const isInvalid =
                   field.state.meta.isTouched && !field.state.meta.isValid;
+
                 return (
                   <Field data-invalid={isInvalid}>
                     <FieldLabel htmlFor={field.name}>Price</FieldLabel>
                     <Input
                       id={field.name}
+                      name={field.name}
                       type="number"
-                      value={String(field.state.value ?? "")}
-                      onChange={(e) =>
-                        field.handleChange(e.target.value as any)
-                      }
+                      value={field.state.value}
+                      onChange={(e) => field.handleChange(e.target.value)}
+                      onBlur={field.handleBlur}
                       placeholder="250"
                     />
                     {isInvalid && (
@@ -211,6 +229,7 @@ export function CreateMealFormClient() {
               children={(field) => {
                 const isInvalid =
                   field.state.meta.isTouched && !field.state.meta.isValid;
+
                 return (
                   <Field data-invalid={isInvalid}>
                     <FieldLabel htmlFor={field.name}>
@@ -218,8 +237,10 @@ export function CreateMealFormClient() {
                     </FieldLabel>
                     <Input
                       id={field.name}
+                      name={field.name}
                       value={field.state.value}
                       onChange={(e) => field.handleChange(e.target.value)}
+                      onBlur={field.handleBlur}
                       placeholder="https://example.com/meal.jpg"
                     />
                     {isInvalid && (
@@ -235,6 +256,7 @@ export function CreateMealFormClient() {
               children={(field) => {
                 const isInvalid =
                   field.state.meta.isTouched && !field.state.meta.isValid;
+
                 return (
                   <Field data-invalid={isInvalid}>
                     <FieldLabel htmlFor={field.name}>
@@ -242,8 +264,10 @@ export function CreateMealFormClient() {
                     </FieldLabel>
                     <Input
                       id={field.name}
+                      name={field.name}
                       value={field.state.value}
                       onChange={(e) => field.handleChange(e.target.value)}
+                      onBlur={field.handleBlur}
                       placeholder="Bangladeshi"
                     />
                     {isInvalid && (
@@ -253,15 +277,16 @@ export function CreateMealFormClient() {
                 );
               }}
             />
+
+            <button
+              type="submit"
+              className="mt-4 w-full rounded-md bg-primary px-4 py-2 text-primary-foreground"
+            >
+              Submit
+            </button>
           </FieldGroup>
         </form>
       </CardContent>
-
-      <CardFooter className="flex flex-col">
-        <Button form="meal-form" type="submit" className="w-full">
-          Submit
-        </Button>
-      </CardFooter>
     </Card>
   );
 }

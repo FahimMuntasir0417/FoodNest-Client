@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
+
 import { ThemeProvider } from "@/lib/components/provider-component/theme-provider";
 import { Toaster } from "@/components/ui/sonner";
 
@@ -21,14 +22,19 @@ export const metadata: Metadata = {
 
 export default function RootLayout({
   children,
-}: Readonly<{
-  children: React.ReactNode;
-}>) {
+}: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="en" suppressHydrationWarning>
       <body
         suppressHydrationWarning
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        className={[
+          geistSans.variable,
+          geistMono.variable,
+          "antialiased",
+          "min-h-dvh",
+          "bg-background",
+          "text-foreground",
+        ].join(" ")}
       >
         <ThemeProvider
           attribute="class"
@@ -36,8 +42,21 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          {children}
-          <Toaster richColors />
+          {/* App shell */}
+          <div className="relative min-h-dvh">
+            {/* subtle background decoration */}
+            <div
+              aria-hidden="true"
+              className="pointer-events-none fixed inset-0 -z-10"
+            >
+              <div className="absolute inset-0 bg-gradient-to-b from-primary/10 via-transparent to-transparent" />
+              <div className="absolute inset-0 bg-[radial-gradient(60rem_30rem_at_50%_-10%,hsl(var(--primary)/0.12),transparent_60%)]" />
+            </div>
+
+            {children}
+          </div>
+
+          <Toaster richColors closeButton />
         </ThemeProvider>
       </body>
     </html>

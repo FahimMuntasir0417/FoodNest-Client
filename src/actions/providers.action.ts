@@ -4,19 +4,26 @@ import {
   providersService,
   type CreateProviderInput,
 } from "@/services/providers.service";
-import { revalidateTag } from "next/cache";
+import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
+// ✅ import your service
 
-export const createProvider = async (data: CreateProviderInput) => {
-  const res = await providersService.create(data);
+import { userService } from "@/services/auth.service";
 
-  if (res.error) {
-    return res; // client shows toast error
+export const createProvider = async (
+  data: Omit<CreateProviderInput, "userId">,
+) => {
+  const { data: authData, error } = await userService.getSession();
+
+  if (error || !authData?.session?.userId) {
+    return { error: { message: "Unauthorized" } };
   }
 
-  // your Next types require profile arg
-  revalidateTag("providers", "default");
+  const userId = authData.session.userId;
+  console.log("sdfgs", userId);
 
-  // redirect after success
-  redirect("/providers");
+  const res = await providersService.create({ userId, ...data });
+  if (res.error) return res;
+
+  redirect("/provider");
 };
