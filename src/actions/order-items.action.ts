@@ -50,11 +50,45 @@ export async function addToDraftCart(input: {
     return { data: null, error: res.error };
   }
 
-  revalidatePath("/cart");
-
-  // ✅ redirect MUST be before returning, and no return after it
-  redirect("/order-item");
+  return { data: res.data as OrderItem, error: null };
 }
+
+// export async function addToDraftCart(input: {
+//   mealId: string;
+//   quantity?: number;
+// }): Promise<ActionResult<OrderItem>> {
+//   const { data: authData, error } = await getSession();
+
+//   const userId = getUserId(authData);
+//   if (error || !userId) {
+//     return { data: null, error: { message: "Unauthorized", detail: error } };
+//   }
+
+//   const mealId = input.mealId?.trim();
+//   if (!mealId) {
+//     return { data: null, error: { message: "Meal is required" } };
+//   }
+
+//   const quantity = Number(input.quantity ?? 1);
+//   if (!Number.isFinite(quantity) || quantity < 1) {
+//     return { data: null, error: { message: "Quantity must be at least 1" } };
+//   }
+
+//   const res = await createOrderItem({
+//     customerId: userId,
+//     mealId,
+//     quantity: Math.floor(quantity),
+//   });
+
+//   if (res.error) {
+//     return { data: null, error: res.error };
+//   }
+
+//   revalidatePath("/cart");
+
+//   // ✅ redirect MUST be before returning, and no return after it
+//   redirect("/order-item");
+// }
 
 // "use server";
 

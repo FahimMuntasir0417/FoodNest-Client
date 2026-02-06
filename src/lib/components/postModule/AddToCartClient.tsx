@@ -1,5 +1,6 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import * as React from "react";
 import { useId, useMemo, useState } from "react";
 import { toast } from "sonner";
@@ -20,6 +21,7 @@ export function AddToCartClient({
   mealId: string;
   className?: string;
 }) {
+  const router = useRouter();
   const inputId = useId();
   const [qty, setQty] = useState<number>(1);
   const [loading, setLoading] = useState(false);
@@ -47,6 +49,7 @@ export function AddToCartClient({
       }
 
       toast.success("Added to cart!", { id: t });
+      router.push("/order-item");
     } catch (e: any) {
       toast.error(e?.message ?? "Something went wrong", { id: t });
     } finally {
