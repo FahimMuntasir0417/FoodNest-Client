@@ -102,22 +102,25 @@ export default function OrderForm() {
 
     const toastId = toast.loading("Placing order...");
 
-    startTransition(async () => {
-      const res = await createOrderFromDrafts({
-        deliveryAddress: v.value.deliveryAddress,
-        phone: v.value.phone,
-        note: v.value.note,
-        deliveryFee: DELIVERY_FEE,
-      });
+    startTransition(() => {
+      (async () => {
+        const res = await createOrderFromDrafts({
+          deliveryAddress: v.value.deliveryAddress,
+          phone: v.value.phone,
+          note: v.value.note,
+          deliveryFee: DELIVERY_FEE,
+        });
 
-      if (res.error) {
-        toast.error(res.error.message, { id: toastId });
-        return;
-      }
+        if (res?.error) {
+          toast.error(res.error.message, { id: toastId });
+          return;
+        }
 
-      toast.success("Order placed successfully!", { id: toastId });
-      router.push("/orders");
-      router.refresh();
+        toast.success("Order placed successfully!", { id: toastId });
+
+        router.push("/customer-dashboard/customer-order");
+        router.refresh();
+      })();
     });
   };
 

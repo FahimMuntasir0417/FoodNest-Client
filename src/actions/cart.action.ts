@@ -5,6 +5,7 @@ import { cookies } from "next/headers";
 import { revalidatePath } from "next/cache";
 import { env } from "@/env";
 import { parseJsonSafe, type ServiceResult } from "@/services/_helpers";
+import { redirect } from "next/navigation";
 
 const API_URL = env.API_URL ?? "http://localhost:4000/api/v1";
 
@@ -100,7 +101,6 @@ export async function removeDraftItem(
       };
     }
 
-    revalidatePath("/cart");
     return { data: null, error: null };
   } catch (err: any) {
     return {

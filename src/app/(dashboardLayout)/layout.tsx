@@ -1,3 +1,4 @@
+import React from "react";
 import { AppSidebar } from "@/components/app-sidebar";
 import {
   Breadcrumb,
@@ -13,8 +14,14 @@ import {
   SidebarProvider,
   SidebarTrigger,
 } from "@/components/ui/sidebar";
+import { getSession } from "@/services/auth.service";
 
-export default function DashboardLayout({
+// adjust path
+// or whatever you use to get session on server
+
+type Role = "ADMIN" | "PROVIDER" | "CUSTOMER";
+
+export default async function DashboardLayout({
   admin,
   provider,
   customer,
@@ -23,9 +30,17 @@ export default function DashboardLayout({
   provider: React.ReactNode;
   customer: React.ReactNode;
 }) {
+  const { data } = await getSession();
+  const role = (data?.user?.role as Role) ?? "CUSTOMER";
+
+  // Sidebar component may expect lowercase; map it cleanly
   const userInfo = {
-    role: "customer",
+    role: role.toLowerCase() as "admin" | "provider" | "customer",
   };
+
+  const content =
+    role === "ADMIN" ? admin : role === "PROVIDER" ? provider : customer;
+
   return (
     <SidebarProvider>
       <AppSidebar user={userInfo} />
@@ -50,9 +65,8 @@ export default function DashboardLayout({
             </BreadcrumbList>
           </Breadcrumb>
         </header>
-        <div className="flex flex-1 flex-col gap-4 p-4">
-          {userInfo.role === "admin" ? admin : customer}
-        </div>
+
+        <div className="flex flex-1 flex-col gap-4 p-4">{content}</div>
       </SidebarInset>
     </SidebarProvider>
   );
