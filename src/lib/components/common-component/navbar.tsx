@@ -52,6 +52,14 @@ interface Navbar1Props {
   };
 }
 
+type Role = "ADMIN" | "PROVIDER" | "CUSTOMER";
+
+function getDashboardUrl(role?: Role) {
+  if (role === "ADMIN") return "/admin-dashboard";
+  if (role === "PROVIDER") return "/provider-dashboard";
+  return "/customer-dashboard";
+}
+
 const Navbar = ({
   logo = {
     url: "https://www.shadcnblocks.com",
@@ -60,8 +68,9 @@ const Navbar = ({
     title: "Shadcnblocks.com",
   },
   menu = [
+    { title: "Dashboard", url: "/customer-dashboard" }, // ✅ safer default than "/"
     { title: "Home", url: "/" },
-    { title: "Food", url: "/about" },
+    { title: "Food", url: "/maels" },
     { title: "Category", url: "/category" },
     { title: "Provider", url: "/provider" },
   ],
@@ -71,6 +80,37 @@ const Navbar = ({
   },
   className,
 }: Navbar1Props) => {
+  const [role, setRole] = React.useState<Role | undefined>(undefined);
+
+  React.useEffect(() => {
+    const loadSession = async () => {
+      try {
+        const res = await fetch("/api/auth/session", {
+          credentials: "include",
+        });
+        if (!res.ok) return;
+
+        const json = await res.json();
+        const r = json?.user?.role as Role | undefined;
+        setRole(r);
+      } catch {
+        // ignore
+      }
+    };
+
+    loadSession();
+  }, []);
+
+  const updatedMenu = React.useMemo(() => {
+    // if role not loaded yet, keep menu default (e.g. /login)
+    if (!role) return menu;
+
+    const dashboardUrl = getDashboardUrl(role);
+    return menu.map((item) =>
+      item.title === "Dashboard" ? { ...item, url: dashboardUrl } : item,
+    );
+  }, [menu, role]);
+
   return (
     <section className={cn("py-4", className)}>
       <div className=" container mx-auto max-w-7xl px-4 md:px-6  ">
@@ -91,9 +131,9 @@ const Navbar = ({
 
             <div className="flex items-center">
               <NavigationMenu>
-                {/* ✅ Radix is unstyled, so make the list horizontal */}
                 <NavigationMenuList className="flex items-center gap-2">
-                  {menu.map((item) => renderMenuItem(item))}
+                  {/* ✅ use updatedMenu */}
+                  {updatedMenu.map((item) => renderMenuItem(item))}
                 </NavigationMenuList>
               </NavigationMenu>
             </div>
@@ -151,7 +191,8 @@ const Navbar = ({
                     collapsible
                     className="flex w-full flex-col gap-4"
                   >
-                    {menu.map((item) => renderMobileMenuItem(item))}
+                    {/* ✅ use updatedMenu */}
+                    {updatedMenu.map((item) => renderMobileMenuItem(item))}
                   </Accordion>
 
                   <div className="flex flex-col gap-3">
@@ -176,7 +217,6 @@ const Navbar = ({
 const renderMenuItem = (item: MenuItem) => {
   return (
     <NavigationMenuItem key={item.title}>
-      {/* ✅ Don't pass href to NavigationMenuLink when using asChild */}
       <NavigationMenuLink asChild>
         <Link
           href={item.url}

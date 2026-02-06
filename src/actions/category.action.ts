@@ -13,6 +13,7 @@ export type ActionResult<T> = {
 };
 
 // ✅ CREATE
+
 export async function createCategory(
   data: CreateCategoryInput,
 ): Promise<ActionResult<any>> {
@@ -20,11 +21,20 @@ export async function createCategory(
 
   if (res?.error) return { data: null, error: res.error };
 
-  // ✅ single argument only
-
-  // ✅ redirect (nothing after this will run)
-  redirect("/meals"); // change if your route is different
+  return { data: res, error: null };
 }
+// export async function createCategory(
+//   data: CreateCategoryInput,
+// ): Promise<ActionResult<any>> {
+//   const res = await categoryService.createCategory(data);
+
+//   if (res?.error) return { data: null, error: res.error };
+
+//   // ✅ single argument only
+
+//   // ✅ redirect (nothing after this will run)
+
+// }
 
 // ✅ DELETE (admin)
 export async function adminDeleteCategory(
@@ -40,7 +50,7 @@ export async function adminDeleteCategory(
 
     if (res?.error) return { data: null, error: res.error };
 
-    revalidatePath("/admin-dashboard/categories");
+    // revalidatePath("/admin-dashboard/categories");
 
     return { data: null, error: null };
   } catch (err: any) {

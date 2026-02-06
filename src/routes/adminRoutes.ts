@@ -15,6 +15,7 @@ export const adminRoutes: Route[] = [
     items: [
       { title: "Add Catrgory", url: "admin-dashboard/create-Category" },
       { title: "Add Meal", url: "/admin-dashboard/category" },
+      { title: "All Meal", url: "/admin-dashboard/all-meal" },
     ],
   },
 

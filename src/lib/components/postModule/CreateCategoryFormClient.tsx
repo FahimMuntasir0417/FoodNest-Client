@@ -1,5 +1,7 @@
 "use client";
 
+import { useRouter } from "next/navigation";
+
 import { createCategory } from "@/actions/category.action";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
@@ -18,6 +20,7 @@ import {
   CardTitle,
 } from "../ui/card";
 import { Field, FieldError, FieldGroup } from "../ui/field";
+import { Router } from "next/router";
 
 const categorySchema = z.object({
   name: z
@@ -31,6 +34,7 @@ const categorySchema = z.object({
 });
 
 export function CreateCategoryFormClient() {
+  const router = useRouter();
   const form = useForm({
     defaultValues: {
       name: "",
@@ -54,6 +58,8 @@ export function CreateCategoryFormClient() {
         }
 
         toast.success("Category created", { id: toastId });
+        router.push("/admin-dashboard");
+
         form.reset();
       } catch (err) {
         toast.error("Something went wrong", { id: toastId });
