@@ -59,7 +59,7 @@ export default function EcommerceFooter1({
 }) {
   // ✅ No params: use constants inside
   const newsletter = {
-    title: "Newsletter",
+    title: "FoodNest",
     description:
       "Join our newsletter to receive exclusive deals, tech tips, product launches, and early access to the latest electronics.",
   };
@@ -148,12 +148,11 @@ export default function EcommerceFooter1({
                 src="https://deifkwefumgah.cloudfront.net/shadcnblocks/block/logos/shadcn-ui-wordmark-black.svg"
                 alt="Logo"
               />
-              <img
-                className="hidden dark:block"
-                src="https://deifkwefumgah.cloudfront.net/shadcnblocks/block/logos/shadcn-ui-wordmark-white.svg"
-                alt="Logo"
-              />
             </a>
+            <div className="font-semibold text-neutral-200">
+              {" "}
+              FooNest ......Commited to better food
+            </div>
           </div>
           <Separator className="flex-1" />
         </div>
@@ -166,7 +165,7 @@ export default function EcommerceFooter1({
             orientation="vertical"
             className="hidden h-4 bg-foreground/40 sm:block"
           />
-          <p className="text-xs md:text-sm">Powered by Shadcnblocks</p>
+          <p className="text-xs md:text-sm">Powered by FoodNest</p>
 
           <Button
             size="icon"

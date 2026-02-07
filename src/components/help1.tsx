@@ -100,7 +100,7 @@ function useDebouncedValue<T>(value: T, delay = 250) {
 }
 
 const Help1 = ({
-  title = "Help Center",
+  title = "Our Services",
   categories = DEFAULT_CATEGORIES,
   popularTopics = DEFAULT_TOPICS,
   onSearch,

@@ -23,8 +23,9 @@ export default async function Page() {
       <HeroFood />
       <DiscountTimerSection testHours={50} />
       <MealsCarousel meals={meals} />
-      <Help1 />
+
       <HowItWorks />
+      <Help1 />
     </div>
   );
 }

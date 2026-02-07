@@ -28,7 +28,7 @@ export function HowItWorks({
 }) {
   return (
     <section className={cn("py-10 md:py-14", className)}>
-      <div className="container mx-auto max-w-7xl px-4 md:px-6">
+      <div className="container mx-auto max-w-8xl px-4 md:px-6">
         <div className="grid gap-6 lg:grid-cols-2 lg:items-stretch">
           {/* Steps */}
           <Card className="relative overflow-hidden rounded-3xl border bg-card/60 shadow-sm backdrop-blur">

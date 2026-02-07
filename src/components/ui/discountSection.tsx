@@ -74,7 +74,9 @@ export function DiscountTimerSection({
                 </div>
 
                 <h2 className="mt-4 text-3xl font-semibold tracking-tight md:text-4xl">
-                  {expired ? "Discount ended" : "Hurry up! Offer ends soon"}
+                  {expired
+                    ? "Discount ended"
+                    : "Hurry up ! Up To 30 % Discount.... Offer ends soon"}
                 </h2>
 
                 <p className="mt-2 max-w-xl text-sm text-muted-foreground md:text-base">
@@ -91,7 +93,7 @@ export function DiscountTimerSection({
                     <Link href="/maels">Shop now</Link>
                   </Button>
                   <Button asChild variant="outline" className="h-11 rounded-xl">
-                    <Link href="/offers">View offers</Link>
+                    <Link href="/maels">View offers</Link>
                   </Button>
                 </div>
               </div>

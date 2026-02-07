@@ -95,10 +95,7 @@ export function HeroFood({ className }: HeroFoodProps) {
             {/* Secondary actions */}
             <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
               <Button asChild className="h-11 rounded-xl">
-                <Link href="/menu">Explore menu</Link>
-              </Button>
-              <Button asChild variant="outline" className="h-11 rounded-xl">
-                <Link href="/offers">View offers</Link>
+                <Link href="/maels">Explore menu</Link>
               </Button>
             </div>
 
@@ -140,7 +137,7 @@ export function HeroFood({ className }: HeroFoodProps) {
               {/* Floating stats */}
               <div className="absolute left-4 top-4 rounded-2xl border bg-background/70 p-3 shadow-sm backdrop-blur">
                 <p className="text-xs text-muted-foreground">Today’s rating</p>
-                <p className="text-lg font-semibold">4.8 ★</p>
+                <p className="text-lg font-semibold">5 ★</p>
               </div>
 
               <div className="absolute bottom-4 left-4 right-4 grid gap-3 sm:grid-cols-3">

@@ -62,10 +62,10 @@ function getDashboardUrl(role?: Role) {
 
 const Navbar = ({
   logo = {
-    url: "https://www.shadcnblocks.com",
+    url: "/",
     src: "https://deifkwefumgah.cloudfront.net/shadcnblocks/block/logos/shadcnblockscom-icon.svg",
     alt: "logo",
-    title: "Shadcnblocks.com",
+    title: "FoodNest",
   },
   menu = [
     { title: "Dashboard", url: "/customer-dashboard" }, // ✅ safer default than "/"
@@ -75,8 +75,8 @@ const Navbar = ({
     { title: "Provider", url: "/provider" },
   ],
   auth = {
-    login: { title: "Login", url: "#" },
-    signup: { title: "Sign up", url: "#" },
+    login: { title: "Login", url: "/login" },
+    signup: { title: "Sign up", url: "/sign-up" },
   },
   className,
 }: Navbar1Props) => {
