@@ -1,5 +1,5 @@
 export type UserRole = "CUSTOMER" | "PROVIDER" | "ADMIN";
-export type UserStatus = "ACTIVE" | "INACTIVE" | "BANNED";
+export type UserStatus = "ACTIVE" | "SUSPENDED";
 
 export type User = {
   id: string;

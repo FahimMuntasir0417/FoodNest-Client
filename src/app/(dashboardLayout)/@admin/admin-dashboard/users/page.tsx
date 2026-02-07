@@ -1,9 +1,10 @@
 import { UserCard } from "@/lib/components/user/UserCard";
-import { userService } from "@/services/user.service";
+import { usersService } from "@/services/user.service";
+
 import type { User } from "@/types/user/user";
 
 export default async function Page() {
-  const result = await userService.getAll();
+  const result = await usersService.getAll();
   const users = result?.data as User[] | null;
   // console.log(users);
 

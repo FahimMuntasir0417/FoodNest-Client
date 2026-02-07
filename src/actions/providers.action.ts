@@ -1,5 +1,6 @@
 "use server";
 
+import { getSession } from "@/services/auth.service";
 import {
   providersService,
   type CreateProviderInput,
@@ -8,12 +9,10 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 // ✅ import your service
 
-import { userService } from "@/services/auth.service";
-
 export const createProvider = async (
   data: Omit<CreateProviderInput, "userId">,
 ) => {
-  const { data: authData, error } = await userService.getSession();
+  const { data: authData, error } = await getSession();
 
   if (error || !authData?.session?.userId) {
     return { error: { message: "Unauthorized" } };

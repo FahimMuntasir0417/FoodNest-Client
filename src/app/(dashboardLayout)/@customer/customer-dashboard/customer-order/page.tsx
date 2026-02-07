@@ -17,6 +17,7 @@ import {
 } from "@/components/ui/accordion";
 
 import { ordersService, type Order } from "@/services/odders.service";
+import { OrderItem } from "@/services/order-items.service";
 
 function fmtDate(iso: string) {
   return new Date(iso).toLocaleString(undefined, {

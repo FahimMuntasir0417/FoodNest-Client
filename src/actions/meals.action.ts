@@ -1,9 +1,9 @@
 "use server";
 
 import { mealsService, type CreateMealInput } from "@/services/meals.service";
-import { revalidateTag } from "next/cache";
+
 import { redirect } from "next/navigation";
-import { userService } from "./../services/user.service";
+
 import { getSession } from "@/services/auth.service";
 
 export const createMeal = async (data: Omit<CreateMealInput, "providerId">) => {

@@ -1,6 +1,6 @@
 "use server";
 
-import { userService } from "@/services/auth.service";
+import { getSession } from "@/services/auth.service";
 import { reviewsService } from "@/services/reviews.service";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
@@ -12,7 +12,7 @@ export type CreateReviewActionInput = {
 };
 
 export const createReview = async (data: CreateReviewActionInput) => {
-  const { data: authData, error } = await userService.getSession();
+  const { data: authData, error } = await getSession();
 
   if (error || !authData?.session?.userId) {
     return { error: { message: "Unauthorized" } };

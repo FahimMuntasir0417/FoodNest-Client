@@ -17,8 +17,21 @@ export type CreateProviderInput = {
 export const providersService = {
   getAll: async (): Promise<ServiceResult<Provider[]>> => {
     try {
+      const cookieStore = await cookies();
+
+      const cookieHeader = cookieStore
+        .getAll()
+        .map(({ name, value }) => `${name}=${value}`)
+        .join("; ");
+
       const res = await fetch(`${API_URL}/providers`, {
-        next: { revalidate: 10, tags: ["providers"] },
+        method: "GET",
+        headers: {
+          cookie: cookieHeader, // ✅ forward cookies to backend
+          accept: "application/json",
+        },
+        cache: "no-store", // ✅ auth data: don't cache
+        // next: { revalidate: 10, tags: ["providers"] }, // ❌ avoid for authed data
       });
 
       const payload = await parseJsonSafe(res);
