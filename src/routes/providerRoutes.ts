@@ -2,6 +2,16 @@ import { Route } from "@/types/route/routes.type";
 
 export const providerRoutes: Route[] = [
   {
+    title: "Home",
+    items: [
+      {
+        title: "Home",
+        url: "/",
+      },
+    ],
+  },
+
+  {
     title: "Profile",
     items: [
       {
@@ -12,7 +22,7 @@ export const providerRoutes: Route[] = [
   },
   {
     title: "Meal",
-    items: [{ title: "Add Meal", url: "/provider-dashboard/category" }],
+    items: [{ title: "Add Meal", url: "/provider-dashboard/add-meal" }],
   },
 
   {

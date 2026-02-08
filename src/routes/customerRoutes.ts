@@ -2,6 +2,15 @@ import { Route } from "@/types/route/routes.type";
 
 export const customerRoutes: Route[] = [
   {
+    title: "Home",
+    items: [
+      {
+        title: "Home",
+        url: "/",
+      },
+    ],
+  },
+  {
     title: "Profile",
     items: [
       {
