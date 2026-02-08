@@ -1,4 +1,4 @@
-import { CreateProviderFormClient } from "../../../../../../lib/components/postModule/CreateProviderFormClient";
+import { CreateProviderFormClient } from "@/lib/components/postModule/CreateProviderFormClient";
 
 const Page = () => {
   return (
