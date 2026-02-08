@@ -117,7 +117,7 @@ export function LoginForm({ ...props }: React.ComponentProps<typeof Card>) {
       </CardHeader>
 
       <CardContent className="space-y-5">
-        <Button
+        {/* <Button
           onClick={handleGoogleLogin}
           variant="outline"
           type="button"
@@ -126,7 +126,7 @@ export function LoginForm({ ...props }: React.ComponentProps<typeof Card>) {
         >
           <GoogleIcon className="mr-2 h-4 w-4" />
           {isGoogleLoading ? "Opening Google…" : "Continue with Google"}
-        </Button>
+        </Button> */}
 
         <div className="relative">
           <div className="absolute inset-0 flex items-center">
