@@ -1,3 +1,4 @@
+// src/services/auth.service.ts
 import { env } from "@/env";
 import { cookies } from "next/headers";
 
@@ -5,27 +6,49 @@ const AUTH_URL = env.AUTH_URL;
 
 export type ServiceResult<T> = {
   data: T | null;
-  error: { message: string; detail?: any } | null;
+  error: { message: string; detail?: unknown } | null;
 };
+
+type CookieKV = { name: string; value: string };
+type CookieStore = { getAll: () => CookieKV[] };
+
+async function resolveCookies(): Promise<CookieStore> {
+  // cookies() কোথাও sync, কোথাও Promise — তাই normalize করছি
+  const maybe = cookies() as unknown as CookieStore | Promise<CookieStore>;
+  const store = await Promise.resolve(maybe);
+  return store;
+}
+
+async function getCookieHeader(): Promise<string> {
+  const store = await resolveCookies();
+  return store
+    .getAll()
+    .map(({ name, value }) => `${name}=${value}`)
+    .join("; ");
+}
+
+async function parseJsonSafe(res: Response) {
+  try {
+    return await res.json();
+  } catch {
+    return null;
+  }
+}
 
 export async function getSession(): Promise<ServiceResult<any>> {
   try {
-    const cookieStore = await cookies();
-    const cookieHeader = cookieStore
-      .getAll()
-      .map(({ name, value }) => `${name}=${value}`)
-      .join("; ");
+    const cookieHeader = await getCookieHeader();
 
     const res = await fetch(`${AUTH_URL}/get-session`, {
       method: "GET",
       headers: {
-        cookie: cookieHeader,
+        cookie: cookieHeader, // ✅ lowercase safest
         accept: "application/json",
       },
       cache: "no-store",
     });
 
-    const payload = await res.json().catch(() => null);
+    const payload = await parseJsonSafe(res);
 
     if (!res.ok) {
       return {
