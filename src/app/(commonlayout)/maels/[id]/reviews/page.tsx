@@ -1,4 +1,4 @@
-import { CreateReviewFormClient } from "./../../../../../lib/components/postModule/CreateReviewFormClient";
+import { CreateReviewFormClient } from "../../../../../lib/components/postModule/CreateReviewFormClient";
 
 export default async function ReviewsPage({
   params,

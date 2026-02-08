@@ -7,6 +7,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { useForm } from "@tanstack/react-form";
 import { toast } from "sonner";
 import { z } from "zod";
+import { useRouter } from "next/navigation"; // ✅ ADD
 
 import {
   Card,
@@ -53,6 +54,8 @@ type CreateMealFormClientProps = {
 export function CreateMealFormClient({
   categoryId,
 }: CreateMealFormClientProps) {
+  const router = useRouter(); // ✅ ADD
+
   const form = useForm({
     defaultValues: {
       categoryId,
@@ -98,7 +101,14 @@ export function CreateMealFormClient({
           return;
         }
 
-        toast.dismiss(toastId);
+        // ✅ PUSH URL BY TOAST ACTION
+
+        toast.success("Meal created!", {
+          action: {
+            label: "View",
+            onClick: () => router.push(`/maels`),
+          },
+        });
 
         form.reset({
           categoryId,
@@ -124,7 +134,6 @@ export function CreateMealFormClient({
       </CardHeader>
 
       <CardContent>
-        {/* ✅ method="post" prevents querystring GET submits */}
         <form
           id="meal-form"
           method="post"
@@ -135,7 +144,6 @@ export function CreateMealFormClient({
           }}
         >
           <FieldGroup>
-            {/* ✅ Keep categoryId in form state but hidden */}
             <form.Field
               name="categoryId"
               children={(field) => (

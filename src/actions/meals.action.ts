@@ -22,8 +22,6 @@ export const createMeal = async (data: Omit<CreateMealInput, "providerId">) => {
   const res = await mealsService.create({ providerId, ...data });
 
   if (res.error) return res;
-
-  redirect("/maels");
 };
 
 export async function deleteMealAction(mealId: string) {
