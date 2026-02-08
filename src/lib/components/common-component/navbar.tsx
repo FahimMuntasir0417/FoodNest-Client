@@ -7,7 +7,6 @@ import { Menu } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { ModeToggle } from "./modetoggle";
 import { Button } from "../ui/button";
-import { Accordion } from "@radix-ui/react-accordion";
 import {
   NavigationMenu,
   NavigationMenuItem,
@@ -41,14 +40,8 @@ interface Navbar1Props {
   };
   menu?: MenuItem[];
   auth?: {
-    login: {
-      title: string;
-      url: string;
-    };
-    signup: {
-      title: string;
-      url: string;
-    };
+    login: { title: string; url: string };
+    signup: { title: string; url: string };
   };
 }
 
@@ -68,9 +61,9 @@ const Navbar = ({
     title: "FoodNest",
   },
   menu = [
-    { title: "Dashboard", url: "/customer-dashboard" }, // ✅ safer default than "/"
+    { title: "Dashboard", url: "/customer-dashboard" },
     { title: "Home", url: "/" },
-    { title: "Food", url: "/maels" },
+    { title: "Food", url: "/meals" }, // ✅ typo fix (change back if needed)
     { title: "Category", url: "/category" },
     { title: "Provider", url: "/provider" },
   ],
@@ -81,6 +74,7 @@ const Navbar = ({
   className,
 }: Navbar1Props) => {
   const [role, setRole] = React.useState<Role | undefined>(undefined);
+  const [isAuthenticated, setIsAuthenticated] = React.useState(false);
 
   React.useEffect(() => {
     const loadSession = async () => {
@@ -88,21 +82,41 @@ const Navbar = ({
         const res = await fetch("/api/auth/session", {
           credentials: "include",
         });
-        if (!res.ok) return;
+        if (!res.ok) {
+          setIsAuthenticated(false);
+          setRole(undefined);
+          return;
+        }
 
         const json = await res.json();
         const r = json?.user?.role as Role | undefined;
+
         setRole(r);
+        setIsAuthenticated(Boolean(json?.user));
       } catch {
-        // ignore
+        setIsAuthenticated(false);
+        setRole(undefined);
       }
     };
 
     loadSession();
   }, []);
 
+  const handleLogout = React.useCallback(async () => {
+    try {
+      // Adjust endpoint if your app uses a different logout route
+      await fetch("/api/auth/logout", {
+        method: "POST",
+        credentials: "include",
+      });
+    } finally {
+      setIsAuthenticated(false);
+      setRole(undefined);
+      window.location.href = auth.login.url; // simple redirect
+    }
+  }, [auth.login.url]);
+
   const updatedMenu = React.useMemo(() => {
-    // if role not loaded yet, keep menu default (e.g. /login)
     if (!role) return menu;
 
     const dashboardUrl = getDashboardUrl(role);
@@ -111,14 +125,16 @@ const Navbar = ({
     );
   }, [menu, role]);
 
+  const dashboardUrl = React.useMemo(() => getDashboardUrl(role), [role]);
+
   return (
     <section className={cn("py-4", className)}>
-      <div className=" container mx-auto max-w-7xl px-4 md:px-6  ">
+      <div className="container mx-auto max-w-7xl px-4 md:px-6">
         {/* Desktop Menu */}
         <nav className="hidden items-center justify-between lg:flex">
           <div className="flex items-center gap-6">
             {/* Logo */}
-            <a href={logo.url} className="flex items-center gap-2">
+            <Link href={logo.url} className="flex items-center gap-2">
               <img
                 src={logo.src}
                 className="max-h-8 dark:invert"
@@ -127,12 +143,11 @@ const Navbar = ({
               <span className="text-lg font-semibold tracking-tighter">
                 {logo.title}
               </span>
-            </a>
+            </Link>
 
             <div className="flex items-center">
               <NavigationMenu>
                 <NavigationMenuList className="flex items-center gap-2">
-                  {/* ✅ use updatedMenu */}
                   {updatedMenu.map((item) => renderMenuItem(item))}
                 </NavigationMenuList>
               </NavigationMenu>
@@ -141,12 +156,26 @@ const Navbar = ({
 
           <div className="flex gap-2">
             <ModeToggle />
-            <Button asChild variant="outline" size="sm">
-              <a href={auth.login.url}>{auth.login.title}</a>
-            </Button>
-            <Button asChild size="sm">
-              <a href={auth.signup.url}>{auth.signup.title}</a>
-            </Button>
+
+            {isAuthenticated ? (
+              <>
+                <Button asChild variant="outline" size="sm">
+                  <Link href={dashboardUrl}>Dashboard</Link>
+                </Button>
+                <Button onClick={handleLogout} variant="destructive" size="sm">
+                  Logout
+                </Button>
+              </>
+            ) : (
+              <>
+                <Button asChild variant="outline" size="sm">
+                  <Link href={auth.login.url}>{auth.login.title}</Link>
+                </Button>
+                <Button asChild size="sm">
+                  <Link href={auth.signup.url}>{auth.signup.title}</Link>
+                </Button>
+              </>
+            )}
           </div>
         </nav>
 
@@ -154,13 +183,13 @@ const Navbar = ({
         <div className="block lg:hidden">
           <div className="flex items-center justify-between">
             {/* Logo */}
-            <a href={logo.url} className="flex items-center gap-2">
+            <Link href={logo.url} className="flex items-center gap-2">
               <img
                 src={logo.src}
                 className="max-h-8 dark:invert"
                 alt={logo.alt}
               />
-            </a>
+            </Link>
 
             <Sheet>
               <SheetTrigger asChild>
@@ -172,7 +201,7 @@ const Navbar = ({
               <SheetContent className="overflow-y-auto">
                 <SheetHeader>
                   <SheetTitle>
-                    <a href={logo.url} className="flex items-center gap-2">
+                    <Link href={logo.url} className="flex items-center gap-2">
                       <img
                         src={logo.src}
                         className="max-h-8 dark:invert"
@@ -181,28 +210,34 @@ const Navbar = ({
                       <span className="text-base font-semibold">
                         {logo.title}
                       </span>
-                    </a>
+                    </Link>
                   </SheetTitle>
                 </SheetHeader>
 
                 <div className="flex flex-col gap-6 p-4">
-                  <Accordion
-                    type="single"
-                    collapsible
-                    className="flex w-full flex-col gap-4"
-                  >
-                    {/* ✅ use updatedMenu */}
+                  <div className="flex w-full flex-col gap-4">
                     {updatedMenu.map((item) => renderMobileMenuItem(item))}
-                  </Accordion>
+                  </div>
 
                   <div className="flex flex-col gap-3">
-                    <ModeToggle />
-                    <Button asChild variant="outline">
-                      <a href={auth.login.url}>{auth.login.title}</a>
-                    </Button>
-                    <Button asChild>
-                      <a href={auth.signup.url}>{auth.signup.title}</a>
-                    </Button>
+                    {isAuthenticated ? (
+                      <>
+                        <Button onClick={handleLogout} variant="destructive">
+                          Logout
+                        </Button>
+                      </>
+                    ) : (
+                      <>
+                        <Button asChild variant="outline">
+                          <Link href={auth.login.url}>{auth.login.title}</Link>
+                        </Button>
+                        <Button asChild>
+                          <Link href={auth.signup.url}>
+                            {auth.signup.title}
+                          </Link>
+                        </Button>
+                      </>
+                    )}
                   </div>
                 </div>
               </SheetContent>
