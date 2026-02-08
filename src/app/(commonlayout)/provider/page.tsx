@@ -95,7 +95,7 @@ export default async function Page() {
 
         <div className="flex flex-wrap gap-3">
           <Link
-            href="/providers/new"
+            href="/create-provider"
             className="inline-flex items-center justify-center rounded-2xl bg-primary px-5 py-2.5 text-sm font-medium text-primary-foreground hover:opacity-90"
           >
             + New provider

@@ -17,7 +17,7 @@ export function BeautifulProviderCard({ provider }: { provider: Provider }) {
 
   return (
     <Link
-      href={`/providers/${provider.id}`}
+      href={`/provider`}
       className="group relative block overflow-hidden rounded-3xl border bg-background p-5 shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-md"
     >
       {/* soft hover glow */}

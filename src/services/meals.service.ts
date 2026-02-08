@@ -92,6 +92,7 @@ export const mealsService = {
         };
       }
 
+      // backend returns array
       return { data: payload as Meal[], error: null };
     } catch (err: any) {
       return {

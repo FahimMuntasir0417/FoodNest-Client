@@ -1,8 +1,7 @@
-// src/app/(commonlayout)/maels/page.tsx
 import Image from "next/image";
 import Link from "next/link";
 import { mealsService } from "@/services/meals.service";
-import { ArrowRight, ChefHat, RefreshCcw } from "lucide-react";
+import { ArrowLeft, ArrowRight, ChefHat, RefreshCcw } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -21,18 +20,55 @@ function formatBDT(amount: number) {
   }
 }
 
-export default async function Page() {
-  const { data, error } = await mealsService.getAll();
+function toPosInt(v: unknown, fallback: number) {
+  const n = Number(v);
+  return Number.isFinite(n) && n >= 1 ? Math.floor(n) : fallback;
+}
 
-  const meals = Array.isArray(data)
-    ? data
-    : Array.isArray((data as any)?.items)
-      ? (data as any).items
-      : Array.isArray((data as any)?.data)
-        ? (data as any).data
-        : [];
+function normalizeMeals(data: unknown): any[] {
+  if (Array.isArray(data)) return data;
+  if (data && typeof data === "object") {
+    const d: any = data;
+    if (Array.isArray(d.items)) return d.items;
+    if (Array.isArray(d.data)) return d.data;
+    if (Array.isArray(d.results)) return d.results;
+  }
+  return [];
+}
 
-  // ✅ Error state (shadcn)
+// Optional: try to read total (if your API returns it)
+function readTotal(data: unknown): number | null {
+  if (!data || typeof data !== "object") return null;
+  const d: any = data;
+  if (typeof d.total === "number") return d.total;
+  if (typeof d.count === "number") return d.count;
+  if (typeof d.totalItems === "number") return d.totalItems;
+  return null;
+}
+
+type SearchParams = { page?: string; limit?: string };
+
+export default async function Page({
+  searchParams,
+}: {
+  searchParams?: Promise<SearchParams>;
+}) {
+  const sp = (await searchParams) ?? {};
+  const page = toPosInt(sp.page, 1);
+  const limit = toPosInt(sp.limit, 9);
+
+  const { data, error } = await mealsService.getAll({ page, limit });
+
+  const meals = normalizeMeals(data);
+
+  // Pagination flags
+  const total = readTotal(data);
+  const hasPrev = page > 1;
+
+  // If API gives total → compute properly
+  const hasNext =
+    typeof total === "number" ? page * limit < total : meals.length === limit;
+
   if (error) {
     return (
       <main className="mx-auto w-full max-w-6xl px-4 py-10">
@@ -61,7 +97,9 @@ export default async function Page() {
                       <Link href="/">Back to home</Link>
                     </Button>
                     <Button asChild className="rounded-xl">
-                      <Link href="/maels">Try again</Link>
+                      <Link href={`/maels?page=${page}&limit=${limit}`}>
+                        Try again
+                      </Link>
                     </Button>
                   </div>
                 </div>
@@ -73,7 +111,6 @@ export default async function Page() {
     );
   }
 
-  // ✅ Empty state (shadcn)
   if (meals.length === 0) {
     return (
       <main className="mx-auto w-full max-w-6xl px-4 py-10">
@@ -86,13 +123,21 @@ export default async function Page() {
               No meals found
             </h1>
             <p className="mt-2 text-sm text-muted-foreground">
-              Try again later or check if any meals have been added.
+              Try another page or check later.
             </p>
 
-            <div className="mt-6 flex justify-center">
+            <div className="mt-6 flex justify-center gap-2">
               <Button asChild variant="outline" className="rounded-xl">
                 <Link href="/">Back to home</Link>
               </Button>
+
+              {hasPrev ? (
+                <Button asChild className="rounded-xl">
+                  <Link href={`/maels?page=${page - 1}&limit=${limit}`}>
+                    Previous page
+                  </Link>
+                </Button>
+              ) : null}
             </div>
           </CardContent>
         </Card>
@@ -102,7 +147,7 @@ export default async function Page() {
 
   return (
     <main className="mx-auto w-full max-w-6xl px-4 py-10">
-      {/* Header (industry standard) */}
+      {/* Header */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
         <div>
           <div className="inline-flex items-center gap-2 rounded-full border bg-background/60 px-3 py-1 text-xs text-muted-foreground">
@@ -115,9 +160,10 @@ export default async function Page() {
           </h1>
 
           <p className="mt-1 text-sm text-muted-foreground">
-            Browse{" "}
-            <span className="font-medium text-foreground">{meals.length}</span>{" "}
-            item(s) and view details.
+            Page <span className="font-medium text-foreground">{page}</span> •
+            Showing{" "}
+            <span className="font-medium text-foreground">{meals.length}</span>
+            {typeof total === "number" ? ` of ${total}` : ""}
           </p>
         </div>
 
@@ -133,7 +179,7 @@ export default async function Page() {
 
       <Separator className="my-6" />
 
-      {/* Grid (shadcn card style) */}
+      {/* Grid */}
       <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
         {meals.map((m: any) => (
           <Card
@@ -155,7 +201,6 @@ export default async function Page() {
                 </div>
               )}
 
-              {/* Availability pill */}
               <div className="absolute left-3 top-3">
                 <span
                   className={[
@@ -192,10 +237,7 @@ export default async function Page() {
 
               <div className="mt-4 flex items-center justify-between">
                 <Button asChild variant="outline" className="rounded-xl">
-                  <Link href={`/maels/${m.id}`}>
-                    View
-                    <ArrowRight className="ml-2 size-4 transition group-hover:translate-x-0.5" />
-                  </Link>
+                  <Link href={`/maels/${m.id}`}>View</Link>
                 </Button>
 
                 <Button
@@ -211,6 +253,39 @@ export default async function Page() {
             </CardContent>
           </Card>
         ))}
+      </div>
+
+      <Separator className="my-8" />
+
+      {/* Pagination */}
+      <div className="flex items-center justify-between gap-3">
+        <Button
+          asChild
+          variant="outline"
+          className="rounded-xl"
+          disabled={!hasPrev}
+        >
+          <Link href={`/maels?page=${Math.max(1, page - 1)}&limit=${limit}`}>
+            <ArrowLeft className="mr-2 size-4" />
+            Previous
+          </Link>
+        </Button>
+
+        <div className="text-sm text-muted-foreground">
+          Page <span className="font-medium text-foreground">{page}</span>
+        </div>
+
+        <Button
+          asChild
+          variant="outline"
+          className="rounded-xl"
+          disabled={!hasNext}
+        >
+          <Link href={`/maels?page=${page + 1}&limit=${limit}`}>
+            Next
+            <ArrowRight className="ml-2 size-4" />
+          </Link>
+        </Button>
       </div>
     </main>
   );
