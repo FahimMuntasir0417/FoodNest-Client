@@ -23,7 +23,7 @@ export const adminRoutes: Route[] = [
   {
     title: "Meals",
     items: [
-      { title: "Add Catrgory", url: "admin-dashboard" },
+      { title: "Add Catrgory", url: "/admin-dashboard/create-Category" },
       { title: "Add Meal", url: "/admin-dashboard/category" },
       { title: "All Meal", url: "/admin-dashboard/all-meal" },
     ],
