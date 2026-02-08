@@ -12,7 +12,7 @@ export const providerRoutes: Route[] = [
   },
   {
     title: "Meal",
-    items: [{ title: "Add Meal", url: "/provider-dashboard/add-meal" }],
+    items: [{ title: "Add Meal", url: "/provider-dashboard/category" }],
   },
 
   {

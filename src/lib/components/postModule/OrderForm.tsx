@@ -239,13 +239,6 @@ export default function OrderForm() {
 
           <Separator className="my-3" />
 
-          <div className="flex items-center justify-between">
-            <span className="text-sm font-semibold">Total</span>
-            <span className="text-lg font-semibold">
-              {formatBDT(DELIVERY_FEE)}
-            </span>
-          </div>
-
           <div className="mt-3 flex items-center gap-2 text-xs text-muted-foreground">
             <ShieldCheck className="size-4" />
             Secure checkout • We’ll confirm by phone if needed.

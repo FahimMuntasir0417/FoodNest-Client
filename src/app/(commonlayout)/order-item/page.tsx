@@ -246,7 +246,7 @@ export default async function CartPage() {
                 </div>
 
                 <Button asChild className="h-11 w-full rounded-xl">
-                  <Link href="/order">Checkout</Link>
+                  <Link href="/order">Order</Link>
                 </Button>
 
                 <p className="text-xs text-muted-foreground">

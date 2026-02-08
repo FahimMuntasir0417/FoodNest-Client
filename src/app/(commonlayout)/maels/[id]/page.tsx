@@ -213,10 +213,6 @@ export default async function Page({ params }: PageProps) {
                   {meal.isAvailable ? "Add to cart" : "Unavailable"}
                 </Link>
               </Button>
-
-              <Button asChild variant="outline" className="h-11 rounded-xl">
-                <Link href="/checkout">Go to checkout</Link>
-              </Button>
             </div>
 
             {meal.description ? (
