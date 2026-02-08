@@ -1,36 +1,32 @@
-import { MealCard } from "@/lib/components/meal/MealCard";
-import { mealsService } from "@/services";
-import type { Meal } from "@/types";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Separator } from "@/components/ui/separator";
 
-export default async function AdminDashboard() {
-  const result = await mealsService.getAll();
-
-  if (result?.error) {
-    return <div className="p-6">Error: {result.error.message}</div>;
-  }
-
-  const raw = result?.data;
-
-  const meals: Meal[] = Array.isArray(raw)
-    ? raw
-    : Array.isArray((raw as any)?.meals)
-      ? (raw as any).meals
-      : Array.isArray((raw as any)?.data)
-        ? (raw as any).data
-        : [];
-
+const Page = () => {
   return (
-    <div className="p-6 space-y-4">
-      <h1 className="text-xl font-semibold">Admin Dashboard</h1>
-
-      <h2 className="text-lg font-semibold">Meals</h2>
-      <div className="space-y-3">
-        {meals.length === 0 ? (
-          <div>No meals found</div>
-        ) : (
-          meals.map((m) => <MealCard key={m.id} meal={m} />)
-        )}
+    <div className="mx-auto w-full max-w-4xl p-6 space-y-6">
+      <div className="flex items-center justify-between">
+        <div className="space-y-1">
+          <h1 className="text-lg font-semibold tracking-tight">Admin</h1>
+          <p className="text-sm text-muted-foreground">Dashboard</p>
+        </div>
+        <Badge variant="secondary">Admin</Badge>
       </div>
+
+      <Separator />
+
+      <Card>
+        <CardHeader className="py-4">
+          <CardTitle className="text-base font-medium">Welcome</CardTitle>
+        </CardHeader>
+        <CardContent className="py-6">
+          <p className="text-sm text-muted-foreground">
+            Welcome to the admin dashboard.
+          </p>
+        </CardContent>
+      </Card>
     </div>
   );
-}
+};
+
+export default Page;
