@@ -103,12 +103,10 @@ export function CreateMealFormClient({
 
         // ✅ PUSH URL BY TOAST ACTION
 
-        toast.success("Meal created!", {
-          action: {
-            label: "View",
-            onClick: () => router.push(`/maels`),
-          },
-        });
+        toast.success("Meal created! Redirecting...");
+
+        router.push(`/maels`);
+        router.refresh();
 
         form.reset({
           categoryId,
