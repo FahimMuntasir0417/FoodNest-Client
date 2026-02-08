@@ -82,7 +82,6 @@ export function CreateMealFormClient({
     onSubmit: async ({ value }) => {
       console.log("✅ SUBMIT FIRED:", value);
 
-      const toastId = toast.loading("Creating meal...");
       try {
         const parsed = mealSchema.parse(value);
 
@@ -97,7 +96,7 @@ export function CreateMealFormClient({
         });
 
         if (res?.error) {
-          toast.error(res.error.message, { id: toastId });
+          toast.error(res.error.message);
           return;
         }
 
@@ -119,7 +118,7 @@ export function CreateMealFormClient({
         });
       } catch (err) {
         console.error(err);
-        toast.error("Something went wrong", { id: toastId });
+        toast.error("Something went wrong");
       }
     },
   });
