@@ -88,7 +88,7 @@ export function RegisterForm({
     try {
       const { error } = await authClient.signIn.social({
         provider: "google",
-        callbackURL: "/",
+        callbackURL: "/customer-dashboard",
       });
 
       if (error) {

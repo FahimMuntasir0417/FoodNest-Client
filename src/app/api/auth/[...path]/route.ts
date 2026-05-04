@@ -79,6 +79,7 @@ async function proxyAuth(request: NextRequest, context: RouteContext) {
         ? undefined
         : request.body,
     cache: "no-store",
+    redirect: "manual",
     duplex: "half",
   } as RequestInit & { duplex: "half" });
 
