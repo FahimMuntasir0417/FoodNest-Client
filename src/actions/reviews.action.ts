@@ -11,14 +11,17 @@ export type CreateReviewActionInput = {
   comment?: string;
 };
 
+function getUserId(authData: any): string | null {
+  return authData?.session?.userId ?? authData?.user?.id ?? null;
+}
+
 export const createReview = async (data: CreateReviewActionInput) => {
   const { data: authData, error } = await getSession();
+  const customerId = getUserId(authData);
 
-  if (error || !authData?.session?.userId) {
+  if (error || !customerId) {
     return { error: { message: "Unauthorized" } };
   }
-
-  const customerId = authData.session.userId;
 
   // validation
   if (!data.mealId) return { error: { message: "Meal is required" } };
@@ -35,8 +38,8 @@ export const createReview = async (data: CreateReviewActionInput) => {
 
   if (res.error) return res;
 
-  // revalidatePath("/reviews");
-  // revalidatePath(`/meals/${data.mealId}`);
+  revalidatePath("/reviews");
+  revalidatePath(`/maels/${data.mealId}`);
 
   redirect(`/maels/${data.mealId}`);
 };
