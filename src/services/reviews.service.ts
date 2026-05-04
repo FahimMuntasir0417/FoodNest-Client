@@ -48,7 +48,15 @@ function createReviewErrorMessage(status: number, payload: unknown) {
 export const reviewsService = {
   getAll: async (): Promise<ServiceResult<Review[]>> => {
     try {
-      const res = await fetch(`${API_URL}/reviews`, { cache: "no-store" });
+      const cookie = await cookieHeader();
+
+      const res = await fetch(`${API_URL}/reviews`, {
+        headers: {
+          cookie,
+          accept: "application/json",
+        },
+        cache: "no-store",
+      });
       const payload = await parseJsonSafe(res);
 
       if (!res.ok) {
@@ -72,7 +80,13 @@ export const reviewsService = {
 
   getById: async (id: string): Promise<ServiceResult<Review>> => {
     try {
+      const cookie = await cookieHeader();
+
       const res = await fetch(`${API_URL}/reviews/${id}`, {
+        headers: {
+          cookie,
+          accept: "application/json",
+        },
         cache: "no-store",
       });
       const payload = await parseJsonSafe(res);
@@ -88,6 +102,42 @@ export const reviewsService = {
       }
 
       return { data: payload as Review, error: null };
+    } catch (err: any) {
+      return {
+        data: null,
+        error: { message: err?.message ?? "Something went wrong" },
+      };
+    }
+  },
+
+  getByMeal: async (mealId: string): Promise<ServiceResult<Review[]>> => {
+    try {
+      const cookie = await cookieHeader();
+
+      const res = await fetch(
+        `${API_URL}/reviews/meal/${encodeURIComponent(mealId)}`,
+        {
+          headers: {
+            cookie,
+            accept: "application/json",
+          },
+          cache: "no-store",
+        },
+      );
+      const payload = await parseJsonSafe(res);
+
+      if (!res.ok) {
+        return {
+          data: null,
+          error: {
+            message: `Failed to fetch meal reviews (HTTP ${res.status})`,
+            status: res.status,
+            detail: payload,
+          },
+        };
+      }
+
+      return { data: payload as Review[], error: null };
     } catch (err: any) {
       return {
         data: null,

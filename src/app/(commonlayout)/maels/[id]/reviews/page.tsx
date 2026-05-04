@@ -3,7 +3,7 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { CreateReviewFormClient } from "@/lib/components/postModule/CreateReviewFormClient";
-import { mealsService } from "@/services";
+import { reviewsService } from "@/services/reviews.service";
 import { getSession } from "@/services/auth.service";
 
 type ReviewPreview = {
@@ -34,14 +34,12 @@ export default async function ReviewsPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
-  const [mealResult, sessionResult] = await Promise.all([
-    mealsService.getById(id),
+  const [reviewsResult, sessionResult] = await Promise.all([
+    reviewsService.getByMeal(id),
     getSession(),
   ]);
   const userId = getUserId(sessionResult.data);
-  const reviews = Array.isArray(mealResult.data?.reviews)
-    ? mealResult.data.reviews
-    : [];
+  const reviews = Array.isArray(reviewsResult.data) ? reviewsResult.data : [];
   const existingReview = userId ? findExistingReview(reviews, userId) : null;
 
   if (!userId) {

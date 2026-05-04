@@ -57,7 +57,6 @@ export async function getDraftMe(): Promise<ServiceResult<OrderItem[]>> {
 }
 
 export async function createOrderItem(input: {
-  customerId: string;
   mealId: string;
   quantity?: number;
 }): Promise<ServiceResult<OrderItem>> {
@@ -73,7 +72,6 @@ export async function createOrderItem(input: {
         accept: "application/json",
       },
       body: JSON.stringify({
-        customerId: input.customerId,
         mealId: input.mealId,
         quantity: input.quantity ?? 1,
       }),

@@ -17,9 +17,9 @@ function getUserId(authData: any): string | null {
 
 export const createReview = async (data: CreateReviewActionInput) => {
   const { data: authData, error } = await getSession();
-  const customerId = getUserId(authData);
+  const userId = getUserId(authData);
 
-  if (error || !customerId) {
+  if (error || !userId) {
     return { error: { message: "Unauthorized" } };
   }
 
@@ -30,7 +30,6 @@ export const createReview = async (data: CreateReviewActionInput) => {
   }
 
   const res = await reviewsService.createReview({
-    customerId, // ✅ use session customerId
     mealId: data.mealId,
     rating: data.rating,
     comment: data.comment?.trim() || undefined,

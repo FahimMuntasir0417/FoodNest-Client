@@ -5,23 +5,17 @@ import {
   providersService,
   type CreateProviderInput,
 } from "@/services/providers.service";
-import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 // ✅ import your service
 
-export const createProvider = async (
-  data: Omit<CreateProviderInput, "userId">,
-) => {
+export const createProvider = async (data: CreateProviderInput) => {
   const { data: authData, error } = await getSession();
 
-  if (error || !authData?.session?.userId) {
+  if (error || !(authData?.session?.userId ?? authData?.user?.id)) {
     return { error: { message: "Unauthorized" } };
   }
 
-  const userId = authData.session.userId;
-  console.log("sdfgs", userId);
-
-  const res = await providersService.create({ userId, ...data });
+  const res = await providersService.create(data);
   if (res.error) return res;
 
   redirect("/provider");

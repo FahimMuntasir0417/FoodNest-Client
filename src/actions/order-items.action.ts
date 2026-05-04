@@ -1,9 +1,6 @@
 // src/actions/cart.action.ts
 "use server";
 
-import { revalidatePath } from "next/cache";
-import { redirect } from "next/navigation";
-
 import { getSession } from "@/services/auth.service";
 import {
   createOrderItem,
@@ -41,7 +38,6 @@ export async function addToDraftCart(input: {
   }
 
   const res = await createOrderItem({
-    customerId: userId,
     mealId,
     quantity: Math.floor(quantity),
   });

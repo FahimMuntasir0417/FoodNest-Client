@@ -1,5 +1,4 @@
 export interface ReviewInput {
-  customerId: string;
   mealId: string;
   rating: number; // 1..5
   comment?: string;

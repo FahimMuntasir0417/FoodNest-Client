@@ -6,7 +6,6 @@ import { cookies } from "next/headers";
 const API_URL = env.API_URL;
 
 export type CreateProviderInput = {
-  userId: string;
   shopName: string;
   description?: string | null;
   address?: string | null;
@@ -92,11 +91,12 @@ export const providersService = {
         .map((c) => `${c.name}=${c.value}`)
         .join("; ");
 
-      const res = await fetch(`${API_URL}/providers/me`, {
+      const res = await fetch(`${API_URL}/providers`, {
         method: "POST",
         headers: {
-          "Content-Type": "application/json",
-          Cookie: cookieStore.toString(),
+          "content-type": "application/json",
+          cookie: cookieHeader,
+          accept: "application/json",
         },
         body: JSON.stringify(input),
         cache: "no-store",
