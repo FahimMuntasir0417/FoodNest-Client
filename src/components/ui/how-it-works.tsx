@@ -90,7 +90,7 @@ export function HowItWorks({
                 </Button>
 
                 <Button asChild variant="outline" className="h-11 rounded-xl">
-                  <Link href="/offers">See deals</Link>
+                  <Link href="/maels">See meals</Link>
                 </Button>
 
                 <div className="hidden flex-1 sm:block" />

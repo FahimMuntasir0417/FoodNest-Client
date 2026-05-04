@@ -1,36 +1,50 @@
-// next.config.ts
 import type { NextConfig } from "next";
+
+const backendUrl = process.env.BACKEND_URL?.replace(/\/$/, "");
 
 const nextConfig: NextConfig = {
   images: {
     remotePatterns: [
-      // ✅ your existing domain
       {
         protocol: "https",
         hostname: "images.foodhub.com",
         pathname: "/**",
       },
-      // ✅ add Unsplash
       {
         protocol: "https",
         hostname: "images.unsplash.com",
         pathname: "/**",
       },
-
       {
         protocol: "https",
-        hostname: "images.unsplash.com",
+        hostname: "res.cloudinary.com",
+        pathname: "/**",
+      },
+      {
+        protocol: "https",
+        hostname: "i.ibb.co",
+        pathname: "/**",
+      },
+      {
+        protocol: "https",
+        hostname: "images.pexels.com",
+        pathname: "/**",
+      },
+      {
+        protocol: "https",
+        hostname: "cdn.pixabay.com",
         pathname: "/**",
       },
     ],
   },
   async rewrites() {
-    return [
-      {
-        source: "/api/:path*",
-        destination: `https://foodnest-server.onrender.com/api/:path*`,
-      },
-    ];
+    if (!backendUrl) return [];
+
+    return {
+      fallback: [
+        { source: "/api/:path*", destination: `${backendUrl}/api/:path*` },
+      ],
+    };
   },
 };
 

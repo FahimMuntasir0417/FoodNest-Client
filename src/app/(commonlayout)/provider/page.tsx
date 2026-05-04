@@ -1,162 +1,85 @@
-// app/providers/page.tsx
 import Link from "next/link";
+import { MapPin, Phone, Store } from "lucide-react";
+
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { providersService } from "@/services/providers.service";
 import type { Provider } from "@/types/provider/provider";
-import { BeautifulProviderCard } from "@/components/provider/BeautifulProviderCard";
 
 export default async function Page() {
   const result = await providersService.getAll();
-  const providers = (result?.data ?? null) as Provider[] | null;
+  const providers = Array.isArray(result.data)
+    ? (result.data as Provider[])
+    : [];
 
-  // Error state
-  if (result?.error) {
+  if (result.error) {
     return (
-      <div className="mx-auto max-w-6xl px-4 py-10">
-        <div className="relative overflow-hidden rounded-3xl border bg-background p-8 shadow-sm">
-          <div className="pointer-events-none absolute inset-0 bg-gradient-to-br from-muted/40 via-transparent to-transparent" />
-          <h1 className="text-2xl font-semibold tracking-tight">
-            Couldn’t load providers
-          </h1>
-          <p className="mt-2 text-sm text-muted-foreground">
-            Please refresh the page or try again in a moment.
-          </p>
-
-          <div className="mt-5 rounded-2xl bg-muted p-4 text-sm">
-            <span className="font-medium">Error:</span> {result.error.message}
-          </div>
-
-          <div className="mt-7 flex flex-wrap gap-3">
-            <Link
-              href="/providers"
-              className="inline-flex items-center justify-center rounded-2xl border px-4 py-2 text-sm font-medium hover:bg-muted"
-            >
-              Refresh
-            </Link>
-            <Link
-              href="/"
-              className="inline-flex items-center justify-center rounded-2xl bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:opacity-90"
-            >
-              Back home
-            </Link>
-          </div>
-        </div>
-      </div>
+      <main className="mx-auto max-w-6xl px-4 py-10 md:px-6">
+        <Card className="rounded-lg">
+          <CardHeader>
+            <CardTitle>Failed to load providers</CardTitle>
+          </CardHeader>
+          <CardContent className="text-sm text-muted-foreground">
+            {result.error.message}
+          </CardContent>
+        </Card>
+      </main>
     );
   }
 
-  // Empty state
-  if (!providers?.length) {
-    return (
-      <div className="mx-auto max-w-6xl px-4 py-10">
-        <div className="relative overflow-hidden rounded-3xl border bg-background p-12 text-center shadow-sm">
-          <div className="pointer-events-none absolute inset-0 bg-gradient-to-br from-muted/40 via-transparent to-transparent" />
-          <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-3xl bg-muted">
-            <span className="text-xl">🏪</span>
-          </div>
-
-          <h1 className="mt-5 text-3xl font-semibold tracking-tight">
-            No providers yet
-          </h1>
-          <p className="mt-2 text-sm text-muted-foreground">
-            Providers will appear here once they’re created.
-          </p>
-
-          <div className="mt-8 flex justify-center gap-3">
-            <Link
-              href="/"
-              className="inline-flex items-center justify-center rounded-2xl border px-4 py-2 text-sm font-medium hover:bg-muted"
-            >
-              Back home
-            </Link>
-            <Link
-              href="/providers/new"
-              className="inline-flex items-center justify-center rounded-2xl bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:opacity-90"
-            >
-              Add provider
-            </Link>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
-  // Main page
   return (
-    <div className="mx-auto max-w-6xl px-4 py-10">
-      {/* Header */}
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+    <main className="mx-auto max-w-7xl px-4 py-10 md:px-6">
+      <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
         <div>
-          <h1 className="text-4xl font-semibold tracking-tight">Providers</h1>
+          <p className="text-sm font-medium text-primary">Providers</p>
+          <h1 className="mt-2 text-3xl font-semibold tracking-tight">
+            Food providers
+          </h1>
           <p className="mt-2 text-sm text-muted-foreground">
-            Manage all providers •{" "}
-            <span className="font-medium">{providers.length}</span> total
+            Compare {providers.length} provider
+            {providers.length === 1 ? "" : "s"} by shop name, address, and
+            contact details.
           </p>
         </div>
-
-        <div className="flex flex-wrap gap-3">
-          <Link
-            href="/create-provider"
-            className="inline-flex items-center justify-center rounded-2xl bg-primary px-5 py-2.5 text-sm font-medium text-primary-foreground hover:opacity-90"
-          >
-            + New provider
-          </Link>
-        </div>
+        <Button asChild className="rounded-md">
+          <Link href="/create-provider">Create provider</Link>
+        </Button>
       </div>
 
-      {/* Stats */}
-      <div className="mt-7 rounded-3xl border bg-background p-5 shadow-sm">
-        <div className="grid gap-4 sm:grid-cols-3">
-          <div className="rounded-2xl bg-muted/40 p-4">
-            <p className="text-xs font-medium text-muted-foreground">
-              Total providers
-            </p>
-            <p className="mt-2 text-2xl font-semibold">{providers.length}</p>
-          </div>
-
-          <div className="rounded-2xl bg-muted/40 p-4">
-            <p className="text-xs font-medium text-muted-foreground">
-              Newest (API order)
-            </p>
-            <p className="mt-2 truncate text-sm font-semibold">
-              {providers[0]?.shopName ?? "—"}
-            </p>
-            <p className="mt-1 truncate text-xs text-muted-foreground">
-              {providers[0]?.address ?? "—"}
-            </p>
-          </div>
-
-          <div className="rounded-2xl bg-muted/40 p-4">
-            <p className="text-xs font-medium text-muted-foreground">
-              Quick actions
-            </p>
-            <div className="mt-3 flex gap-2">
-              <Link
-                href="/providers"
-                className="inline-flex items-center justify-center rounded-xl border px-3 py-2 text-xs font-medium hover:bg-muted"
-              >
-                Refresh
-              </Link>
-              <Link
-                href="/providers/new"
-                className="inline-flex items-center justify-center rounded-xl border px-3 py-2 text-xs font-medium hover:bg-muted"
-              >
-                Add
-              </Link>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Cards */}
-      <div className="mt-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-        {providers.map((p) => (
-          <BeautifulProviderCard key={p.id} provider={p} />
-        ))}
-      </div>
-
-      <p className="mt-6 text-xs text-muted-foreground">
-        Tip: Hover a card for subtle lift.
-      </p>
-    </div>
+      {providers.length ? (
+        <section className="mt-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+          {providers.map((provider) => (
+            <Card key={provider.id} className="rounded-lg">
+              <CardHeader>
+                <Store className="size-5 text-primary" />
+                <CardTitle className="text-base">
+                  {provider.shopName || "FoodNest provider"}
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-3 text-sm text-muted-foreground">
+                <p className="leading-6">
+                  {provider.description ||
+                    "This provider manages meals and order fulfillment through FoodNest."}
+                </p>
+                <div className="flex gap-2">
+                  <MapPin className="mt-0.5 size-4 shrink-0 text-primary" />
+                  <span>{provider.address || "Address not listed"}</span>
+                </div>
+                <div className="flex gap-2">
+                  <Phone className="mt-0.5 size-4 shrink-0 text-primary" />
+                  <span>{provider.phone || "Phone not listed"}</span>
+                </div>
+              </CardContent>
+            </Card>
+          ))}
+        </section>
+      ) : (
+        <Card className="mt-8 rounded-lg">
+          <CardContent className="p-8 text-center text-sm text-muted-foreground">
+            Providers will appear here after provider profiles are created.
+          </CardContent>
+        </Card>
+      )}
+    </main>
   );
 }

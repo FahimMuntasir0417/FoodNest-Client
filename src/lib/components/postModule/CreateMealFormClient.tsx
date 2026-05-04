@@ -7,7 +7,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { useForm } from "@tanstack/react-form";
 import { toast } from "sonner";
 import { z } from "zod";
-import { useRouter } from "next/navigation"; // ✅ ADD
+import { useRouter } from "next/navigation";
 
 import {
   Card,
@@ -54,7 +54,7 @@ type CreateMealFormClientProps = {
 export function CreateMealFormClient({
   categoryId,
 }: CreateMealFormClientProps) {
-  const router = useRouter(); // ✅ ADD
+  const router = useRouter();
 
   const form = useForm({
     defaultValues: {
@@ -80,8 +80,6 @@ export function CreateMealFormClient({
     },
 
     onSubmit: async ({ value }) => {
-      console.log("✅ SUBMIT FIRED:", value);
-
       try {
         const parsed = mealSchema.parse(value);
 
@@ -99,8 +97,6 @@ export function CreateMealFormClient({
           toast.error(res.error.message);
           return;
         }
-
-        // ✅ PUSH URL BY TOAST ACTION
 
         toast.success("Meal created! Redirecting...");
 

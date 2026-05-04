@@ -38,5 +38,5 @@ export const createReview = async (data: CreateReviewActionInput) => {
   // revalidatePath("/reviews");
   // revalidatePath(`/meals/${data.mealId}`);
 
-  redirect(`/meals/${data.mealId}`);
+  redirect(`/maels/${data.mealId}`);
 };

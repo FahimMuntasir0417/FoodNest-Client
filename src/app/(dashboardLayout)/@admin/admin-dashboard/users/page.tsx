@@ -1,24 +1,25 @@
-import { UserCard } from "@/lib/components/user/UserCard";
+import { UsersTable } from "@/lib/components/ui/users-table";
 import { usersService } from "@/services/user.service";
-
-import type { User } from "@/types/user/user";
+import { toArray } from "@/lib/foodnest-data";
+import type { User } from "@/types";
 
 export default async function Page() {
   const result = await usersService.getAll();
-  const users = result?.data as User[] | null;
-  // console.log(users);
+  const users = toArray<User>(result.data);
 
-  if (result?.error) return <div className="p-6">{result.error.message}</div>;
-  if (!users?.length) return <div className="p-6">No users found</div>;
+  if (result.error) {
+    return <div className="text-sm text-destructive">{result.error.message}</div>;
+  }
 
   return (
-    <div className="p-6 space-y-4">
-      <h1 className="text-xl font-semibold">Users</h1>
-      <div className="space-y-3">
-        {users.map((u) => (
-          <UserCard key={u.id} user={u} />
-        ))}
+    <div className="space-y-4">
+      <div>
+        <h1 className="text-2xl font-semibold tracking-tight">Users</h1>
+        <p className="mt-1 text-sm text-muted-foreground">
+          Filter and paginate users, roles, and account status.
+        </p>
       </div>
+      <UsersTable users={users} />
     </div>
   );
 }

@@ -58,7 +58,7 @@ export async function adminDeleteMeal(
     }
 
     // ✅ revalidate your admin meals page route
-    revalidatePath("/admin-dashboard/meals");
+    revalidatePath("/admin-dashboard/all-meal");
     return { data: null, error: null };
   } catch (err: any) {
     return {

@@ -1,36 +1,121 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# FoodNest Client
 
-## Getting Started
+FoodNest Client is a modern food ordering web application frontend built with Next.js, TypeScript, Tailwind CSS, and reusable UI components. It allows users to browse meals, view food providers, place orders, manage profiles, and interact with a clean responsive interface.
 
-First, run the development server:
+## Links
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+- Live demo: add your deployed frontend URL
+- Backend/API: `https://foodnest-server.onrender.com`
+
+## Features
+
+- Meal browsing and meal detail pages
+- Provider listing and provider dashboard flows
+- Customer cart and order management
+- Admin dashboards for users, meals, categories, and orders
+- Better Auth based authentication
+- Role-aware dashboard access for customer, provider, and admin users
+- Reusable shadcn/Radix UI components
+- Centralized API client and environment configuration
+
+## Tech Stack
+
+- Next.js 16
+- React 18
+- TypeScript
+- Tailwind CSS 4
+- Radix UI and shadcn-style components
+- Better Auth
+- Zod
+- React Hook Form
+- Vitest and React Testing Library
+- Playwright
+
+## Folder Structure
+
+```txt
+src/
+  app/                Route files and layouts
+  components/
+    ui/               Reusable UI primitives
+    shared/           App-level reusable states and helpers
+  config/             Environment and site configuration
+  features/           Feature-based components, services, schemas, and types
+  lib/                API, auth, and utility helpers
+  services/           Compatibility exports while services migrate to features
+  types/              Shared TypeScript types
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Environment Variables
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+Copy `.env.example` to `.env` and update values as needed.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```bash
+NEXT_PUBLIC_API_URL=
+NEXT_PUBLIC_SITE_URL=
+NEXT_PUBLIC_AUTH_URL=
 
-## Learn More
+BACKEND_URL=
+API_URL=
+AUTH_URL=
+FRONTEND_URL=
+```
 
-To learn more about Next.js, take a look at the following resources:
+## Installation
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+```bash
+pnpm install
+```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Development
 
-## Deploy on Vercel
+```bash
+pnpm dev
+```
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+Open `http://localhost:3000`.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## Build
+
+```bash
+pnpm build
+```
+
+## Quality Checks
+
+```bash
+pnpm type-check
+pnpm lint
+pnpm format:check
+pnpm test -- --run
+```
+
+## End-to-End Tests
+
+```bash
+pnpm test:e2e
+```
+
+## Deployment
+
+The app is ready for Vercel deployment. Configure the same environment variables in the Vercel project settings, then deploy from the `main` branch.
+
+## Screenshots
+
+Add screenshots to the `screenshots/` directory.
+
+## Future Improvements
+
+- Complete migration of all services into `src/features`
+- Add Playwright coverage for login and ordering flows
+- Add stronger typed API response contracts
+- Add image upload support for providers and meals
+- Add analytics and performance monitoring
+
+## GitHub Topics
+
+`nextjs` `typescript` `tailwindcss` `food-ordering` `react` `frontend` `restaurant-app` `vercel`
+
+## Author
+
+Add your name, portfolio, and contact links.

@@ -1,5 +1,6 @@
 import React from "react";
 import { AppSidebar } from "@/components/app-sidebar";
+import { DashboardUserMenu } from "@/components/dashboard/dashboard-user-menu";
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -15,6 +16,7 @@ import {
   SidebarTrigger,
 } from "@/components/ui/sidebar";
 import { getSession } from "@/services/auth.service";
+import { ModeToggle } from "@/lib/components/common-component/modetoggle";
 
 // adjust path
 // or whatever you use to get session on server
@@ -45,28 +47,42 @@ export default async function DashboardLayout({
     <SidebarProvider>
       <AppSidebar user={userInfo} />
       <SidebarInset>
-        <header className="flex h-16 shrink-0 items-center gap-2 border-b px-4">
-          <SidebarTrigger className="-ml-1" />
-          <Separator
-            orientation="vertical"
-            className="mr-2 data-[orientation=vertical]:h-4"
-          />
-          <Breadcrumb>
-            <BreadcrumbList>
-              <BreadcrumbItem className="hidden md:block">
-                <BreadcrumbLink href="#">
-                  Building Your Application
-                </BreadcrumbLink>
-              </BreadcrumbItem>
-              <BreadcrumbSeparator className="hidden md:block" />
-              <BreadcrumbItem>
-                <BreadcrumbPage>Data Fetching</BreadcrumbPage>
-              </BreadcrumbItem>
-            </BreadcrumbList>
-          </Breadcrumb>
+        <header className="flex h-16 shrink-0 items-center justify-between gap-3 border-b bg-background px-4">
+          <div className="flex min-w-0 items-center gap-2">
+            <SidebarTrigger className="-ml-1" />
+            <Separator
+              orientation="vertical"
+              className="mr-2 data-[orientation=vertical]:h-4"
+            />
+            <Breadcrumb>
+              <BreadcrumbList>
+                <BreadcrumbItem className="hidden md:block">
+                  <BreadcrumbLink href="/">FoodNest</BreadcrumbLink>
+                </BreadcrumbItem>
+                <BreadcrumbSeparator className="hidden md:block" />
+                <BreadcrumbItem>
+                  <BreadcrumbPage>
+                    {role.charAt(0) + role.slice(1).toLowerCase()} dashboard
+                  </BreadcrumbPage>
+                </BreadcrumbItem>
+              </BreadcrumbList>
+            </Breadcrumb>
+          </div>
+
+          <div className="flex items-center gap-2">
+            <ModeToggle />
+            <DashboardUserMenu
+              user={{
+                name: data?.user?.name,
+                email: data?.user?.email,
+                image: data?.user?.image,
+                role,
+              }}
+            />
+          </div>
         </header>
 
-        <div className="flex flex-1 flex-col gap-4 p-4">{content}</div>
+        <div className="flex flex-1 flex-col gap-4 p-4 md:p-6">{content}</div>
       </SidebarInset>
     </SidebarProvider>
   );

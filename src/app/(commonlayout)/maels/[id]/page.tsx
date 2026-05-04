@@ -1,16 +1,35 @@
-// src/app/(commonlayout)/maels/[id]/page.tsx
 import Image from "next/image";
 import Link from "next/link";
 import type { Metadata } from "next";
+import type { ComponentType } from "react";
 import { notFound } from "next/navigation";
+import {
+  ArrowLeft,
+  ChefHat,
+  Clock,
+  MapPin,
+  Phone,
+  ShoppingCart,
+  Star,
+  Store,
+} from "lucide-react";
 
+import { MealListingCard } from "@/components/meals/meal-listing-card";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Separator } from "@/components/ui/separator";
+import {
+  averageRating,
+  fallbackMealImage,
+  formatDate,
+  formatDateTime,
+  formatMoney,
+  mealImage,
+  toArray,
+} from "@/lib/foodnest-data";
 import { mealsService } from "@/services";
 import type { Category, Provider } from "@/types";
 import type { Review } from "@/services/reviews.service";
-
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Separator } from "@/components/ui/separator";
 
 export const revalidate = 60;
 
@@ -35,51 +54,10 @@ export type Meal = {
   reviews?: Review[];
 };
 
-function formatBDT(amount: number) {
-  try {
-    return new Intl.NumberFormat("bn-BD", {
-      style: "currency",
-      currency: "BDT",
-    }).format(amount);
-  } catch {
-    return `৳${amount}`;
-  }
-}
-
-function clampRating(r: number) {
-  if (Number.isNaN(r)) return 0;
-  return Math.min(5, Math.max(0, Math.round(r)));
-}
-
-function Stars({ rating }: { rating: number }) {
-  const r = clampRating(rating);
-  return (
-    <span
-      aria-label={`${r} out of 5 stars`}
-      className="inline-flex items-center gap-0.5 text-sm"
-    >
-      {Array.from({ length: 5 }).map((_, i) => (
-        <span
-          key={i}
-          className={i < r ? "text-amber-500" : "text-muted-foreground/30"}
-        >
-          ★
-        </span>
-      ))}
-    </span>
-  );
-}
-
 async function fetchMeal(id: string): Promise<Meal | null> {
-  try {
-    const res = await mealsService.getById(id);
-    const meal = res?.data ?? null;
-    return meal?.id ? meal : null;
-  } catch (e: any) {
-    const status = e?.status ?? e?.response?.status;
-    if (status === 404) return null;
-    throw e;
-  }
+  const result = await mealsService.getById(id);
+  const meal = result.data as Meal | null;
+  return meal?.id ? meal : null;
 }
 
 export async function generateMetadata({
@@ -87,225 +65,309 @@ export async function generateMetadata({
 }: PageProps): Promise<Metadata> {
   const { id } = await params;
   const meal = await fetchMeal(id);
+
   if (!meal) return { title: "Meal not found" };
 
   return {
-    title: `${meal.title} • Meal Details`,
-    description: meal.description ?? undefined,
+    title: `${meal.title} | FoodNest`,
+    description: meal.description || `FoodNest meal details for ${meal.title}.`,
     openGraph: {
       title: meal.title,
-      description: meal.description ?? undefined,
-      images: meal.imageUrl ? [meal.imageUrl] : undefined,
+      description: meal.description || undefined,
+      images: [mealImage(meal)],
     },
   };
 }
 
 export default async function Page({ params }: PageProps) {
   const { id } = await params;
-
   const meal = await fetchMeal(id);
+
   if (!meal) notFound();
 
+  const allMealsResult = await mealsService.getAll();
+  const allMeals = toArray<Meal>(allMealsResult.data);
+  const relatedMeals = allMeals
+    .filter(
+      (item) =>
+        item.id !== meal.id &&
+        (item.categoryId === meal.categoryId || item.cuisine === meal.cuisine),
+    )
+    .slice(0, 4);
   const reviews = meal.reviews ?? [];
-  const avgRating = reviews.length
-    ? reviews.reduce((s, r) => s + (r.rating || 0), 0) / reviews.length
-    : 0;
+  const rating = averageRating(reviews);
+  const gallery = [
+    mealImage(meal),
+    ...relatedMeals.map((item) => mealImage(item)),
+    fallbackMealImage(meal),
+  ].slice(0, 3);
 
   return (
-    <main className="mx-auto w-full max-w-6xl px-4 py-8 md:py-10">
-      {/* Top header */}
-      <div className="mb-6 flex flex-col gap-3 md:mb-8">
-        <div className="text-sm text-muted-foreground">
-          <Link href="/" className="hover:underline">
-            Home
-          </Link>{" "}
-          <span className="mx-2">/</span>
-          <Link href="/maels" className="hover:underline">
-            Meals
-          </Link>{" "}
-          <span className="mx-2">/</span>
-          <span className="text-foreground">{meal.title}</span>
-        </div>
-
-        <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
-          <div className="min-w-0">
-            <h1 className="truncate text-2xl font-semibold tracking-tight md:text-3xl">
-              {meal.title}
-            </h1>
-            <p className="mt-1 text-sm text-muted-foreground">
-              {meal.cuisine ? `${meal.cuisine} • ` : ""}
-              {meal.category?.name ?? "Uncategorized"}
-            </p>
+    <main className="mx-auto w-full max-w-7xl px-4 py-10 md:px-6">
+      <div className="mb-6 flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
+        <div>
+          <div className="text-sm text-muted-foreground">
+            <Link href="/" className="hover:underline">
+              Home
+            </Link>
+            <span className="mx-2">/</span>
+            <Link href="/maels" className="hover:underline">
+              Meals
+            </Link>
+            <span className="mx-2">/</span>
+            <span className="text-foreground">{meal.title}</span>
           </div>
-
-          <div className="flex gap-2">
-            <Button asChild variant="outline" className="rounded-xl">
-              <Link href="/maels">Back</Link>
-            </Button>
-          </div>
+          <h1 className="mt-3 text-3xl font-semibold tracking-tight md:text-4xl">
+            {meal.title}
+          </h1>
+          <p className="mt-2 text-sm text-muted-foreground">
+            {meal.cuisine || "FoodNest meal"} from{" "}
+            {meal.provider?.shopName || "a verified provider"}
+          </p>
         </div>
+        <Button asChild variant="outline" className="rounded-md">
+          <Link href="/maels">
+            <ArrowLeft className="size-4" />
+            Back to meals
+          </Link>
+        </Button>
       </div>
 
-      <div className="grid grid-cols-1 gap-6 lg:grid-cols-[420px,1fr]">
-        {/* Left: Meal */}
-        <Card className="overflow-hidden rounded-3xl">
-          <div className="relative aspect-[4/3] w-full bg-muted">
-            {meal.imageUrl ? (
-              <Image
-                src={meal.imageUrl}
-                alt={meal.title}
-                fill
-                priority
-                className="object-cover"
-                sizes="(max-width: 1024px) 100vw, 420px"
-              />
-            ) : (
-              <div className="flex h-full items-center justify-center text-sm text-muted-foreground">
-                No image
-              </div>
-            )}
-
-            <div className="absolute left-4 top-4">
-              <span
-                className={[
-                  "rounded-full border bg-background/70 px-3 py-1 text-xs font-medium backdrop-blur",
-                  meal.isAvailable
-                    ? "border-emerald-200 text-emerald-700"
-                    : "border-rose-200 text-rose-700",
-                ].join(" ")}
+      <section className="grid gap-6 lg:grid-cols-[1.1fr_0.9fr]">
+        <div className="grid gap-3 sm:grid-cols-[1.4fr_0.8fr]">
+          <div className="relative min-h-[360px] overflow-hidden rounded-lg border bg-muted">
+            <Image
+              src={gallery[0]}
+              alt={meal.title}
+              fill
+              priority
+              className="object-cover"
+              sizes="(max-width: 1024px) 100vw, 700px"
+            />
+          </div>
+          <div className="grid gap-3">
+            {gallery.slice(1).map((src, index) => (
+              <div
+                key={`${src}-${index}`}
+                className="relative min-h-[174px] overflow-hidden rounded-lg border bg-muted"
               >
+                <Image
+                  src={src}
+                  alt={`${meal.title} related media ${index + 1}`}
+                  fill
+                  className="object-cover"
+                  sizes="(max-width: 640px) 100vw, 320px"
+                />
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <Card className="rounded-lg">
+          <CardHeader>
+            <div className="flex items-start justify-between gap-3">
+              <div>
+                <CardTitle className="text-xl">Order summary</CardTitle>
+                <p className="mt-2 text-sm text-muted-foreground">
+                  Public details for availability, price, provider, and reviews.
+                </p>
+              </div>
+              <span className="rounded-md border bg-background px-3 py-1 text-xs font-medium">
                 {meal.isAvailable ? "Available" : "Unavailable"}
               </span>
             </div>
-          </div>
-
-          <CardContent className="p-5">
-            <div className="flex items-start justify-between gap-4">
-              <div>
-                <p className="text-2xl font-semibold">
-                  {formatBDT(meal.price)}
-                </p>
-                <p className="mt-1 text-sm text-muted-foreground">per item</p>
-              </div>
-
-              <div className="text-right">
-                <div className="flex items-center justify-end gap-2">
-                  <Stars rating={avgRating} />
-                  <span className="text-sm text-muted-foreground">
-                    {avgRating ? avgRating.toFixed(1) : "—"}
-                  </span>
-                </div>
-                <p className="text-xs text-muted-foreground">
-                  {reviews.length} review(s)
-                </p>
-              </div>
+          </CardHeader>
+          <CardContent>
+            <div className="grid gap-4 sm:grid-cols-2">
+              <Metric label="Price" value={formatMoney(meal.price)} />
+              <Metric
+                label="Rating"
+                value={rating ? `${rating.toFixed(1)} / 5` : "New"}
+              />
+              <Metric
+                label="Category"
+                value={meal.category?.name || "Uncategorized"}
+              />
+              <Metric label="Updated" value={formatDate(meal.updatedAt)} />
             </div>
 
             <Separator className="my-5" />
 
-            <div className="flex flex-col gap-3">
-              <Button
-                asChild
-                className="h-11 rounded-xl"
-                disabled={!meal.isAvailable}
-              >
-                <Link href={`/maels/${id}/add-cart`}>
-                  {meal.isAvailable ? "Add to cart" : "Unavailable"}
-                </Link>
-              </Button>
-            </div>
-
-            {meal.description ? (
-              <div className="mt-5">
-                <h3 className="text-sm font-semibold">Description</h3>
-                <p className="mt-2 text-sm leading-6 text-muted-foreground">
-                  {meal.description}
-                </p>
-              </div>
-            ) : null}
+            <Button
+              asChild
+              className="h-11 w-full rounded-md"
+              disabled={!meal.isAvailable}
+            >
+              <Link href={`/maels/${id}/add-cart`}>
+                <ShoppingCart className="size-4" />
+                {meal.isAvailable ? "Add to cart" : "Unavailable"}
+              </Link>
+            </Button>
           </CardContent>
         </Card>
+      </section>
 
-        {/* Right: Provider + Reviews */}
-        <section className="space-y-6">
-          {/* Provider */}
-          <Card className="rounded-3xl">
-            <CardHeader className="pb-0">
-              <CardTitle className="text-base">Provider</CardTitle>
+      <section className="mt-8 grid gap-6 lg:grid-cols-[1fr_360px]">
+        <div className="space-y-6">
+          <Card className="rounded-lg">
+            <CardHeader>
+              <CardTitle>Description and overview</CardTitle>
             </CardHeader>
-            <CardContent className="pt-4">
-              <p className="text-sm font-semibold">
-                {meal.provider?.shopName?.trim()
-                  ? meal.provider.shopName
-                  : "Unnamed shop"}
-              </p>
-
-              <div className="mt-2 space-y-1 text-sm text-muted-foreground">
-                {meal.provider?.address ? (
-                  <p>📍 {meal.provider.address}</p>
-                ) : null}
-                {meal.provider?.phone ? <p>📞 {meal.provider.phone}</p> : null}
-              </div>
-
-              <Separator className="my-5" />
-
-              <Button asChild variant="outline" className="rounded-xl">
-                <Link href={`/providers/${meal.providerId}`}>
-                  View provider
-                </Link>
-              </Button>
+            <CardContent className="text-sm leading-7 text-muted-foreground">
+              {meal.description?.trim() ||
+                `${meal.title} is part of the FoodNest menu and can be compared by cuisine, category, provider, pricing, and availability before ordering.`}
             </CardContent>
           </Card>
 
-          {/* Reviews */}
-          <Card className="rounded-3xl">
+          <Card className="rounded-lg">
+            <CardHeader>
+              <CardTitle>Key information</CardTitle>
+            </CardHeader>
+            <CardContent className="grid gap-3 sm:grid-cols-2">
+              <InfoRow icon={ChefHat} label="Cuisine" value={meal.cuisine || "Not specified"} />
+              <InfoRow
+                icon={Store}
+                label="Provider"
+                value={meal.provider?.shopName || "FoodNest provider"}
+              />
+              <InfoRow
+                icon={MapPin}
+                label="Address"
+                value={meal.provider?.address || "Provider address unavailable"}
+              />
+              <InfoRow
+                icon={Phone}
+                label="Phone"
+                value={meal.provider?.phone || "Provider phone unavailable"}
+              />
+              <InfoRow
+                icon={Clock}
+                label="Created"
+                value={formatDateTime(meal.createdAt)}
+              />
+              <InfoRow
+                icon={Star}
+                label="Reviews"
+                value={`${reviews.length} review${reviews.length === 1 ? "" : "s"}`}
+              />
+            </CardContent>
+          </Card>
+
+          <Card className="rounded-lg">
             <CardHeader className="flex-row items-center justify-between space-y-0">
-              <CardTitle className="text-base">Reviews</CardTitle>
-              <Button asChild className="rounded-xl">
-                <Link href={`/maels/${id}/reviews/`}>Add review</Link>
+              <CardTitle>Reviews and ratings</CardTitle>
+              <Button asChild className="rounded-md">
+                <Link href={`/maels/${id}/reviews`}>Add review</Link>
               </Button>
             </CardHeader>
-
-            <CardContent className="pt-4">
-              {reviews.length === 0 ? (
-                <div className="rounded-2xl border bg-muted/20 p-5 text-sm text-muted-foreground">
-                  No reviews yet.
-                </div>
-              ) : (
+            <CardContent>
+              {reviews.length ? (
                 <ul className="space-y-4">
-                  {reviews.map((r) => (
-                    <li key={r.id} className="rounded-2xl border p-4">
+                  {reviews.slice(0, 5).map((review) => (
+                    <li key={review.id} className="rounded-lg border p-4">
                       <div className="flex items-start justify-between gap-3">
-                        <div className="min-w-0">
-                          <p className="truncate font-semibold">
-                            {r.customer?.name ?? "Customer"}
+                        <div>
+                          <p className="font-medium">
+                            {review.customer?.name || "FoodNest customer"}
                           </p>
                           <p className="mt-1 text-xs text-muted-foreground">
-                            {new Date(r.createdAt).toLocaleString()}
+                            {formatDateTime(review.createdAt)}
                           </p>
                         </div>
-
-                        <div className="shrink-0 text-right">
-                          <Stars rating={r.rating} />
-                          <p className="mt-1 text-xs text-muted-foreground">
-                            {clampRating(r.rating)}/5
-                          </p>
-                        </div>
+                        <span className="text-sm font-medium">
+                          {Number(review.rating ?? 0).toFixed(1)} / 5
+                        </span>
                       </div>
-
-                      {r.comment ? (
-                        <p className="mt-3 text-sm leading-6 text-muted-foreground">
-                          {r.comment}
-                        </p>
-                      ) : null}
+                      <p className="mt-3 text-sm leading-6 text-muted-foreground">
+                        {review.comment || "No written comment was added."}
+                      </p>
                     </li>
                   ))}
                 </ul>
+              ) : (
+                <div className="rounded-lg border bg-muted/30 p-5 text-sm text-muted-foreground">
+                  This meal has no reviews yet. Customers can add feedback from
+                  the review page.
+                </div>
               )}
             </CardContent>
           </Card>
-        </section>
-      </div>
+        </div>
+
+        <aside className="space-y-6">
+          <Card className="rounded-lg">
+            <CardHeader>
+              <CardTitle>Provider</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-3 text-sm text-muted-foreground">
+              <p className="font-medium text-foreground">
+                {meal.provider?.shopName || "FoodNest provider"}
+              </p>
+              <p>{meal.provider?.description || "Provider details are managed from the provider dashboard."}</p>
+              <Button asChild variant="outline" className="mt-2 rounded-md">
+                <Link href="/provider">View providers</Link>
+              </Button>
+            </CardContent>
+          </Card>
+        </aside>
+      </section>
+
+      <section className="mt-10">
+        <div className="mb-5 flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
+          <div>
+            <p className="text-sm font-medium text-primary">Related meals</p>
+            <h2 className="mt-2 text-2xl font-semibold tracking-tight">
+              Similar items from the menu
+            </h2>
+          </div>
+          <Button asChild variant="outline" className="rounded-md">
+            <Link href="/maels">Explore all</Link>
+          </Button>
+        </div>
+        {relatedMeals.length ? (
+          <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
+            {relatedMeals.map((item) => (
+              <MealListingCard key={item.id} meal={item} />
+            ))}
+          </div>
+        ) : (
+          <Card className="rounded-lg">
+            <CardContent className="p-6 text-sm text-muted-foreground">
+              Related meals will appear when the API returns other meals in this
+              category or cuisine.
+            </CardContent>
+          </Card>
+        )}
+      </section>
     </main>
+  );
+}
+
+function Metric({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="rounded-lg border bg-muted/30 p-3">
+      <p className="text-xs text-muted-foreground">{label}</p>
+      <p className="mt-1 font-semibold">{value}</p>
+    </div>
+  );
+}
+
+function InfoRow({
+  icon: Icon,
+  label,
+  value,
+}: {
+  icon: ComponentType<{ className?: string }>;
+  label: string;
+  value: string;
+}) {
+  return (
+    <div className="flex gap-3 rounded-lg border p-3">
+      <Icon className="mt-0.5 size-4 shrink-0 text-primary" />
+      <div>
+        <p className="text-xs text-muted-foreground">{label}</p>
+        <p className="mt-1 text-sm font-medium">{value}</p>
+      </div>
+    </div>
   );
 }

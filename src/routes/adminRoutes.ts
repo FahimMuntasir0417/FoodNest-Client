@@ -2,11 +2,15 @@ import { Route } from "@/types/route/routes.type";
 
 export const adminRoutes: Route[] = [
   {
-    title: "Home",
+    title: "Main",
     items: [
       {
         title: "Home",
         url: "/",
+      },
+      {
+        title: "Overview",
+        url: "/admin-dashboard",
       },
     ],
   },
@@ -33,9 +37,8 @@ export const adminRoutes: Route[] = [
   {
     title: "Meals",
     items: [
-      { title: "Add Catrgory", url: "/admin-dashboard/create-Category" },
-
-      { title: "All Meal", url: "/admin-dashboard/all-meal" },
+      { title: "Add Category", url: "/admin-dashboard/create-Category" },
+      { title: "All Meals", url: "/admin-dashboard/all-meal" },
     ],
   },
 

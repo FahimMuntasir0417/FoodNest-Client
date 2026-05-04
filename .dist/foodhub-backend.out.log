@@ -1,0 +1,8 @@
+
+> prisma-blog-app@1.0.0 dev E:\FoodHub
+> npx tsx watch src/index.ts
+
+Connected database successfully
+Server running on port 4000
+prisma:error Connection terminated unexpectedly
+prisma:error Connection terminated unexpectedly

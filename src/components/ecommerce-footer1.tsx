@@ -1,179 +1,179 @@
 "use client";
 
 import * as React from "react";
+import Link from "next/link";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { ChevronUp, Clock, LucideIcon, MapPin, Phone } from "lucide-react";
+import { ArrowUp, Clock, Mail, MapPin, Phone } from "lucide-react";
 import { Controller, useForm } from "react-hook-form";
-import { siFacebook, siInstagram, SimpleIcon, siX } from "simple-icons";
-import z from "zod";
-
-import { cn } from "@/lib/utils";
+import { siFacebook, siInstagram, siX, type SimpleIcon } from "simple-icons";
+import { z } from "zod";
 
 import { Button } from "@/components/ui/button";
 import { Field, FieldError } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
-import {
-  Select,
-  SelectContent,
-  SelectGroup,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
+import { cn } from "@/lib/utils";
 
-type FooterLink = { text: string; link: string };
-type FooterLinksSection = { title: string; items: FooterLink[] };
+type FooterLink = { text: string; href: string };
+type FooterSection = { title: string; items: FooterLink[] };
+type SocialLink = { href: string; icon: SimpleIcon };
 
-type SocialLink = { link: string; icon: SimpleIcon };
-
-const LINK_TYPES = {
-  NO_LINK: "NO_LINK",
-  PHONE_LINK: "PHONE_LINK",
-  EMAIL_LINK: "EMAIL_LINK",
-} as const;
-
-type LinkTypes = keyof typeof LINK_TYPES;
-
-type ContactLink = {
-  icon: LucideIcon;
-  text: string;
-  type: LinkTypes;
-  link?: string;
-};
-
-type ContactLinks = {
-  contactDetails: ContactLink[];
-  socialMedia: SocialLink[];
-};
-
-const newsletterFormSchema = z.object({
-  email: z.string().email(),
+const newsletterSchema = z.object({
+  email: z.email("Enter a valid email address."),
 });
-type NewsletterFormType = z.infer<typeof newsletterFormSchema>;
+
+type NewsletterValues = z.infer<typeof newsletterSchema>;
+
+const footerSections: FooterSection[] = [
+  {
+    title: "Explore",
+    items: [
+      { text: "Meals", href: "/maels" },
+      { text: "Categories", href: "/category" },
+      { text: "Providers", href: "/provider" },
+      { text: "Reviews", href: "/reviews" },
+    ],
+  },
+  {
+    title: "Company",
+    items: [
+      { text: "About", href: "/about" },
+      { text: "Blog", href: "/blog" },
+      { text: "Help", href: "/help" },
+      { text: "Contact", href: "/contact" },
+    ],
+  },
+  {
+    title: "Legal",
+    items: [
+      { text: "Privacy", href: "/privacy" },
+      { text: "Terms", href: "/terms" },
+    ],
+  },
+];
+
+const socialLinks: SocialLink[] = [
+  { icon: siFacebook, href: "https://www.facebook.com/" },
+  { icon: siInstagram, href: "https://www.instagram.com/" },
+  { icon: siX, href: "https://x.com/" },
+];
 
 export default function EcommerceFooter1({
   className,
 }: {
   className?: string;
 }) {
-  // ✅ No params: use constants inside
-  const newsletter = {
-    title: "FoodNest",
-    description:
-      "Join our newsletter to receive exclusive deals, tech tips, product launches, and early access to the latest electronics.",
-  };
-
-  const footerLinks: FooterLinksSection[] = [
-    {
-      title: "Information",
-      items: [
-        { text: "Terms and Conditions", link: "#" },
-        { text: "Privacy Policy", link: "#" },
-        { text: "Warranty Policy", link: "#" },
-        { text: "Terms of Service", link: "#" },
-      ],
-    },
-    {
-      title: "Collections",
-      items: [
-        { text: "New Arrivals", link: "#" },
-        { text: "Best Sellers", link: "#" },
-        { text: "Seasonal Edits", link: "#" },
-        { text: "Wardrobe Essentials", link: "#" },
-      ],
-    },
-  ];
-
-  const contactLinks: ContactLinks = {
-    contactDetails: [
-      {
-        icon: MapPin,
-        text: "support@store.com",
-        link: "support@store.com",
-        type: "EMAIL_LINK",
-      },
-      {
-        icon: Phone,
-        text: "+12345678910",
-        link: "+12345678910",
-        type: "PHONE_LINK",
-      },
-      {
-        icon: Clock,
-        text: "Monday - Friday, 9 am - 9 pm",
-        type: "NO_LINK",
-      },
-    ],
-    socialMedia: [
-      { icon: siFacebook, link: "#" },
-      { icon: siX, link: "#" },
-      { icon: siInstagram, link: "#" },
-    ],
-  };
-
   return (
-    <footer className={cn("border-t bg-background", className)}>
-      <div className="container mx-auto space-y-10 px-4 py-10 md:px-6 xl:py-12">
-        <div className="grid grid-cols-1 gap-x-16 gap-y-10 md:grid-cols-2 xl:grid-cols-4">
-          <NewsletterSection
-            title={newsletter.title}
-            description={newsletter.description}
-          />
-          <FooterLinks sections={footerLinks} />
-          <ContactSection links={contactLinks} />
-        </div>
-
-        <div className="flex items-center justify-between pt-2">
-          <Select defaultValue="english">
-            <SelectTrigger className="w-32">
-              <SelectValue placeholder="Language" />
-            </SelectTrigger>
-            <SelectContent align="start">
-              <SelectGroup>
-                <SelectItem value="english">English</SelectItem>
-                <SelectItem value="français">Français</SelectItem>
-                <SelectItem value="arabic">Arabic</SelectItem>
-              </SelectGroup>
-            </SelectContent>
-          </Select>
-        </div>
-
-        <div className="flex items-center justify-between gap-4 md:gap-12">
-          <Separator className="flex-1" />
-          <div className="basis-32 md:basis-40">
-            <a href="/" className="block">
-              <img
-                className="block dark:hidden"
-                src="https://deifkwefumgah.cloudfront.net/shadcnblocks/block/logos/shadcn-ui-wordmark-black.svg"
-                alt="Logo"
-              />
-            </a>
-            <div className="font-semibold text-neutral-200">
-              {" "}
-              FooNest ......Commited to better food
-            </div>
+    <footer className={cn("bg-background", className)}>
+      <div className="mx-auto max-w-7xl px-4 py-12 md:px-6">
+        <div className="grid gap-10 lg:grid-cols-[1.25fr_2fr_1fr]">
+          <div className="space-y-5">
+            <Link href="/" className="flex items-center gap-2">
+              <span className="flex size-9 items-center justify-center rounded-md bg-primary text-sm font-semibold text-primary-foreground">
+                FN
+              </span>
+              <span className="text-lg font-semibold tracking-tight">
+                FoodNest
+              </span>
+            </Link>
+            <p className="max-w-sm text-sm leading-6 text-muted-foreground">
+              FoodNest connects customers with verified local food providers,
+              public menus, transparent order tracking, and role-based
+              dashboards.
+            </p>
+            <NewsletterForm />
           </div>
-          <Separator className="flex-1" />
+
+          <div className="grid gap-8 sm:grid-cols-3">
+            {footerSections.map((section) => (
+              <div key={section.title}>
+                <h2 className="text-sm font-semibold uppercase tracking-wide text-muted-foreground">
+                  {section.title}
+                </h2>
+                <ul className="mt-4 space-y-3">
+                  {section.items.map((item) => (
+                    <li key={item.href}>
+                      <Link
+                        href={item.href}
+                        className="text-sm underline-offset-4 hover:underline"
+                      >
+                        {item.text}
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ))}
+          </div>
+
+          <div>
+            <h2 className="text-sm font-semibold uppercase tracking-wide text-muted-foreground">
+              Contact
+            </h2>
+            <ul className="mt-4 space-y-3 text-sm">
+              <li className="flex gap-3">
+                <MapPin className="mt-0.5 size-4 shrink-0 text-primary" />
+                <span>Banani, Dhaka 1213, Bangladesh</span>
+              </li>
+              <li className="flex gap-3">
+                <Mail className="mt-0.5 size-4 shrink-0 text-primary" />
+                <a href="mailto:support@foodnest.app" className="hover:underline">
+                  support@foodnest.app
+                </a>
+              </li>
+              <li className="flex gap-3">
+                <Phone className="mt-0.5 size-4 shrink-0 text-primary" />
+                <a href="tel:+8801700000000" className="hover:underline">
+                  +880 1700 000 000
+                </a>
+              </li>
+              <li className="flex gap-3">
+                <Clock className="mt-0.5 size-4 shrink-0 text-primary" />
+                <span>Every day, 9:00 AM to 11:00 PM</span>
+              </li>
+            </ul>
+
+            <ul className="mt-6 flex gap-2">
+              {socialLinks.map(({ icon, href }) => (
+                <li key={icon.slug}>
+                  <Button
+                    asChild
+                    size="icon"
+                    variant="outline"
+                    className="rounded-md"
+                  >
+                    <a href={href} aria-label={icon.title}>
+                      <img
+                        className="size-4 dark:hidden"
+                        alt=""
+                        src={`https://cdn.simpleicons.org/${icon.slug}/1f2937`}
+                      />
+                      <img
+                        className="hidden size-4 dark:block"
+                        alt=""
+                        src={`https://cdn.simpleicons.org/${icon.slug}/f8fafc`}
+                      />
+                    </a>
+                  </Button>
+                </li>
+              ))}
+            </ul>
+          </div>
         </div>
 
-        <div className="flex flex-wrap items-center justify-center gap-3">
-          <p className="text-muted-foreground text-xs md:text-sm">
-            Copyright © {new Date().getFullYear()}
-          </p>
-          <Separator
-            orientation="vertical"
-            className="hidden h-4 bg-foreground/40 sm:block"
-          />
-          <p className="text-xs md:text-sm">Powered by FoodNest</p>
+        <Separator className="my-8" />
 
+        <div className="flex flex-col gap-4 text-sm text-muted-foreground sm:flex-row sm:items-center sm:justify-between">
+          <p>Copyright {new Date().getFullYear()} FoodNest. All rights reserved.</p>
           <Button
-            size="icon"
+            type="button"
             variant="outline"
+            size="sm"
+            className="w-fit rounded-md"
             onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
-            aria-label="Back to top"
           >
-            <ChevronUp />
+            <ArrowUp className="size-4" />
+            Back to top
           </Button>
         </div>
       </div>
@@ -181,144 +181,56 @@ export default function EcommerceFooter1({
   );
 }
 
-function NewsletterSection({
-  title,
-  description,
-}: {
-  title: string;
-  description: string;
-}) {
-  const form = useForm<NewsletterFormType>({
-    resolver: zodResolver(newsletterFormSchema),
+function NewsletterForm() {
+  const [success, setSuccess] = React.useState(false);
+  const form = useForm<NewsletterValues>({
+    resolver: zodResolver(newsletterSchema),
     defaultValues: { email: "" },
   });
 
-  const onSubmit = (data: NewsletterFormType) => {
-    console.log(data);
-  };
+  function onSubmit() {
+    setSuccess(false);
+    return new Promise<void>((resolve) => {
+      window.setTimeout(() => {
+        setSuccess(true);
+        form.reset();
+        resolve();
+      }, 500);
+    });
+  }
 
   return (
-    <div className="space-y-6">
-      <div className="space-y-3">
-        <h3 className="text-2xl font-semibold leading-none">{title}</h3>
-        <p className="text-sm leading-relaxed text-muted-foreground">
-          {description}
+    <form className="space-y-3" onSubmit={form.handleSubmit(onSubmit)} noValidate>
+      <Controller
+        name="email"
+        control={form.control}
+        render={({ field, fieldState }) => (
+          <Field data-invalid={fieldState.invalid}>
+            <Input
+              {...field}
+              type="email"
+              autoComplete="email"
+              placeholder="Email address"
+              aria-invalid={fieldState.invalid}
+              disabled={form.formState.isSubmitting}
+              className="h-10 rounded-md"
+            />
+            <FieldError errors={[fieldState.error]} />
+          </Field>
+        )}
+      />
+      <Button
+        type="submit"
+        className="h-10 w-full rounded-md"
+        disabled={form.formState.isSubmitting}
+      >
+        {form.formState.isSubmitting ? "Subscribing..." : "Subscribe"}
+      </Button>
+      {success ? (
+        <p className="text-sm font-medium text-primary">
+          Subscription saved for FoodNest updates.
         </p>
-      </div>
-
-      <form className="space-y-4" onSubmit={form.handleSubmit(onSubmit)}>
-        <Controller
-          name="email"
-          control={form.control}
-          render={({ field, fieldState }) => (
-            <Field data-invalid={fieldState.invalid}>
-              <Input
-                {...field}
-                aria-invalid={fieldState.invalid}
-                placeholder="Email address"
-                className="h-11 rounded-xl"
-              />
-              {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
-            </Field>
-          )}
-        />
-        <Button className="h-11 w-full rounded-xl">Subscribe</Button>
-      </form>
-    </div>
-  );
-}
-
-function FooterLinks({ sections }: { sections: FooterLinksSection[] }) {
-  return (
-    <>
-      {sections.map((section) => (
-        <div key={section.title}>
-          <h2 className="mb-5 text-sm font-medium uppercase text-muted-foreground">
-            {section.title}
-          </h2>
-          <ul className="space-y-3">
-            {section.items.map((item) => (
-              <li key={item.text}>
-                <a
-                  href={item.link}
-                  className="text-sm underline-offset-4 hover:underline"
-                >
-                  {item.text}
-                </a>
-              </li>
-            ))}
-          </ul>
-        </div>
-      ))}
-    </>
-  );
-}
-
-function ContactSection({ links }: { links: ContactLinks }) {
-  const { socialMedia, contactDetails } = links;
-
-  return (
-    <div>
-      <h2 className="mb-5 text-sm font-medium uppercase text-muted-foreground">
-        Contact
-      </h2>
-
-      <div className="space-y-6">
-        <ul className="space-y-3">
-          {contactDetails.map((item) => {
-            const href =
-              item.type === "EMAIL_LINK"
-                ? `mailto:${item.link}`
-                : item.type === "PHONE_LINK"
-                  ? `tel:${item.link}`
-                  : undefined;
-
-            return (
-              <li className="flex items-center gap-3" key={item.text}>
-                <item.icon className="size-4 shrink-0" />
-                <div className="flex-1">
-                  {href ? (
-                    <a
-                      href={href}
-                      className="text-sm underline-offset-4 hover:underline"
-                    >
-                      {item.text}
-                    </a>
-                  ) : (
-                    <p className="text-sm">{item.text}</p>
-                  )}
-                </div>
-              </li>
-            );
-          })}
-        </ul>
-
-        <ul className="flex flex-wrap gap-3">
-          {socialMedia.map(({ icon, link }) => (
-            <li key={icon.slug}>
-              <Button
-                size="icon"
-                variant="outline"
-                asChild
-                className="rounded-xl"
-              >
-                <a href={link} aria-label={icon.title}>
-                  <img
-                    className="size-5 dark:hidden"
-                    alt={icon.title}
-                    src={`https://cdn.simpleicons.org/${icon.slug}/black`}
-                  />
-                  <img
-                    className="hidden size-5 dark:block"
-                    alt={icon.title}
-                    src={`https://cdn.simpleicons.org/${icon.slug}/white`}
-                  />
-                </a>
-              </Button>
-            </li>
-          ))}
-        </ul>
-      </div>
-    </div>
+      ) : null}
+    </form>
   );
 }

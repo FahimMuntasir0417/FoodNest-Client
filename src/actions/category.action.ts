@@ -1,8 +1,7 @@
 // src/actions/category.action.ts
 "use server";
 
-import { redirect } from "next/navigation";
-import { revalidatePath, revalidateTag } from "next/cache";
+import { revalidatePath } from "next/cache";
 
 import { categoryService } from "@/services";
 import type { CreateCategoryInput } from "@/types/category/category";
@@ -20,6 +19,10 @@ export async function createCategory(
   const res = await categoryService.createCategory(data);
 
   if (res?.error) return { data: null, error: res.error };
+
+  revalidatePath("/provider-dashboard/category");
+  revalidatePath("/provider-dashboard/add-meal");
+  revalidatePath("/category");
 
   return { data: res, error: null };
 }
@@ -50,7 +53,9 @@ export async function adminDeleteCategory(
 
     if (res?.error) return { data: null, error: res.error };
 
-    // revalidatePath("/admin-dashboard/categories");
+    revalidatePath("/provider-dashboard/category");
+    revalidatePath("/provider-dashboard/add-meal");
+    revalidatePath("/category");
 
     return { data: null, error: null };
   } catch (err: any) {

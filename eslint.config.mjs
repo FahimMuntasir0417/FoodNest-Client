@@ -1,6 +1,7 @@
 import { defineConfig, globalIgnores } from "eslint/config";
 import nextVitals from "eslint-config-next/core-web-vitals";
 import nextTs from "eslint-config-next/typescript";
+import prettier from "eslint-config-prettier/flat";
 
 const eslintConfig = defineConfig([
   ...nextVitals,
@@ -16,14 +17,19 @@ const eslintConfig = defineConfig([
 
   {
     rules: {
+      "@next/next/no-html-link-for-pages": "warn",
+      "@typescript-eslint/no-explicit-any": "warn",
+      "@typescript-eslint/no-unsafe-function-type": "warn",
+      "react-hooks/purity": "warn",
       "react/no-children-prop": [
-        true,
+        "warn",
         {
           allowFunctions: true,
         },
       ],
     },
   },
+  prettier,
 ]);
 
 export default eslintConfig;

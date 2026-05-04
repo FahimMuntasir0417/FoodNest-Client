@@ -24,6 +24,11 @@ type UpdateUserInput = {
   status?: User["status"];
 };
 
+type UpdateMeInput = {
+  name: string;
+  phone?: string | null;
+};
+
 async function getCookieHeader(): Promise<string> {
   const store = await cookies(); // ✅ ALWAYS await
 
@@ -134,6 +139,35 @@ export const usersService = {
           data: null,
           error: {
             message: `Failed to update user (HTTP ${res.status})`,
+            detail: payload,
+          },
+        };
+      }
+
+      return { data: payload as User, error: null };
+    } catch (err: any) {
+      return {
+        data: null,
+        error: { message: err?.message ?? "Something went wrong" },
+      };
+    }
+  },
+
+  async updateMe(input: UpdateMeInput): Promise<ServiceResult<User>> {
+    try {
+      const res = await authedFetch(`${API_URL}/users/me`, {
+        method: "PATCH",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify(input),
+      });
+
+      const payload = await parseJsonSafe(res);
+
+      if (!res.ok) {
+        return {
+          data: null,
+          error: {
+            message: `Failed to update profile (HTTP ${res.status})`,
             detail: payload,
           },
         };

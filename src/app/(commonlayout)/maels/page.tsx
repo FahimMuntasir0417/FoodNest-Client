@@ -1,143 +1,155 @@
-import Image from "next/image";
 import Link from "next/link";
-import { mealsService } from "@/services/meals.service";
-import { ArrowLeft, ArrowRight, ChefHat, RefreshCcw } from "lucide-react";
+import { Filter, RefreshCcw, Search } from "lucide-react";
 
+import { MealListingCard } from "@/components/meals/meal-listing-card";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Separator } from "@/components/ui/separator";
+import { Input } from "@/components/ui/input";
+import { categoryService, mealsService } from "@/services";
+import {
+  averageRating,
+  formatMoney,
+  toArray,
+} from "@/lib/foodnest-data";
+import type { Category } from "@/types";
+import type { Meal } from "@/types/meal/meal";
 
 export const revalidate = 60;
 
-function formatBDT(amount: number) {
-  try {
-    return new Intl.NumberFormat("bn-BD", {
-      style: "currency",
-      currency: "BDT",
-    }).format(amount);
-  } catch {
-    return `৳${amount}`;
-  }
+type SearchParams = {
+  q?: string;
+  category?: string;
+  cuisine?: string;
+  availability?: string;
+  maxPrice?: string;
+  sort?: string;
+  page?: string;
+};
+
+const PAGE_SIZE = 12;
+
+function toPage(value?: string) {
+  const page = Number(value);
+  return Number.isFinite(page) && page > 0 ? Math.floor(page) : 1;
 }
 
-function toPosInt(v: unknown, fallback: number) {
-  const n = Number(v);
-  return Number.isFinite(n) && n >= 1 ? Math.floor(n) : fallback;
+function matchesText(meal: Meal, query: string) {
+  if (!query) return true;
+  const target = [
+    meal.title,
+    meal.description,
+    meal.cuisine,
+    meal.category?.name,
+    meal.provider?.shopName,
+  ]
+    .filter(Boolean)
+    .join(" ")
+    .toLowerCase();
+
+  return target.includes(query.toLowerCase());
 }
 
-function normalizeMeals(data: unknown): any[] {
-  if (Array.isArray(data)) return data;
-  if (data && typeof data === "object") {
-    const d: any = data;
-    if (Array.isArray(d.items)) return d.items;
-    if (Array.isArray(d.data)) return d.data;
-    if (Array.isArray(d.results)) return d.results;
-  }
-  return [];
+function filterMeals(meals: Meal[], params: SearchParams) {
+  const query = params.q?.trim() ?? "";
+  const maxPrice = Number(params.maxPrice);
+
+  return meals.filter((meal) => {
+    const matchesCategory =
+      !params.category ||
+      params.category === "all" ||
+      meal.categoryId === params.category ||
+      meal.category?.slug === params.category ||
+      meal.category?.name === params.category;
+    const matchesCuisine =
+      !params.cuisine ||
+      params.cuisine === "all" ||
+      (meal.cuisine ?? "").toLowerCase() === params.cuisine.toLowerCase();
+    const matchesAvailability =
+      !params.availability ||
+      params.availability === "all" ||
+      (params.availability === "available" && meal.isAvailable) ||
+      (params.availability === "unavailable" && !meal.isAvailable);
+    const matchesPrice =
+      !Number.isFinite(maxPrice) || maxPrice <= 0 || meal.price <= maxPrice;
+
+    return (
+      matchesText(meal, query) &&
+      matchesCategory &&
+      matchesCuisine &&
+      matchesAvailability &&
+      matchesPrice
+    );
+  });
 }
 
-// Optional: try to read total (if your API returns it)
-function readTotal(data: unknown): number | null {
-  if (!data || typeof data !== "object") return null;
-  const d: any = data;
-  if (typeof d.total === "number") return d.total;
-  if (typeof d.count === "number") return d.count;
-  if (typeof d.totalItems === "number") return d.totalItems;
-  return null;
+function sortMeals(meals: Meal[], sort = "newest") {
+  return [...meals].sort((a, b) => {
+    if (sort === "price-asc") return Number(a.price) - Number(b.price);
+    if (sort === "price-desc") return Number(b.price) - Number(a.price);
+    if (sort === "rating") return averageRating(b.reviews) - averageRating(a.reviews);
+    if (sort === "title") return a.title.localeCompare(b.title);
+
+    return (
+      new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+    );
+  });
 }
 
-type SearchParams = { page?: string; limit?: string };
+function buildHref(params: SearchParams, next: Partial<SearchParams>) {
+  const search = new URLSearchParams();
+  Object.entries({ ...params, ...next }).forEach(([key, value]) => {
+    if (!value || value === "all") return;
+    search.set(key, value);
+  });
+
+  const query = search.toString();
+  return query ? `/maels?${query}` : "/maels";
+}
 
 export default async function Page({
   searchParams,
 }: {
   searchParams?: Promise<SearchParams>;
 }) {
-  const sp = (await searchParams) ?? {};
-  const page = toPosInt(sp.page, 1);
-  const limit = toPosInt(sp.limit, 9);
+  const params = (await searchParams) ?? {};
+  const page = toPage(params.page);
 
-  const { data, error } = await mealsService.getAll({ page, limit });
+  const [mealsResult, categoriesResult] = await Promise.all([
+    mealsService.getAll(),
+    categoryService.getAll(),
+  ]);
 
-  const meals = normalizeMeals(data);
+  const allMeals = toArray<Meal>(mealsResult.data);
+  const categories = toArray<Category>(categoriesResult.data);
+  const cuisines = Array.from(
+    new Set(allMeals.map((meal) => meal.cuisine).filter(Boolean) as string[]),
+  ).sort((a, b) => a.localeCompare(b));
+  const filtered = sortMeals(filterMeals(allMeals, params), params.sort);
+  const pageCount = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
+  const currentPage = Math.min(page, pageCount);
+  const pageItems = filtered.slice(
+    (currentPage - 1) * PAGE_SIZE,
+    currentPage * PAGE_SIZE,
+  );
+  const prices = allMeals.map((meal) => Number(meal.price ?? 0));
+  const maxKnownPrice = prices.length ? Math.max(...prices) : 0;
 
-  // Pagination flags
-  const total = readTotal(data);
-  const hasPrev = page > 1;
-
-  // If API gives total → compute properly
-  const hasNext =
-    typeof total === "number" ? page * limit < total : meals.length === limit;
-
-  if (error) {
+  if (mealsResult.error) {
     return (
-      <main className="mx-auto w-full max-w-6xl px-4 py-10">
-        <Card className="overflow-hidden rounded-3xl border">
-          <div className="relative">
-            <div
-              aria-hidden
-              className="pointer-events-none absolute inset-0 bg-gradient-to-br from-rose-500/12 via-transparent to-transparent"
-            />
-            <CardContent className="relative p-6 md:p-8">
-              <div className="flex items-start gap-4">
-                <div className="flex size-12 items-center justify-center rounded-2xl bg-rose-500/10 text-rose-700">
-                  <RefreshCcw className="size-5" />
-                </div>
-
-                <div className="min-w-0">
-                  <h1 className="text-lg font-semibold tracking-tight text-foreground">
-                    Failed to load meals
-                  </h1>
-                  <p className="mt-2 text-sm text-muted-foreground">
-                    {error.message}
-                  </p>
-
-                  <div className="mt-5 flex flex-wrap gap-2">
-                    <Button asChild variant="outline" className="rounded-xl">
-                      <Link href="/">Back to home</Link>
-                    </Button>
-                    <Button asChild className="rounded-xl">
-                      <Link href={`/maels?page=${page}&limit=${limit}`}>
-                        Try again
-                      </Link>
-                    </Button>
-                  </div>
-                </div>
-              </div>
-            </CardContent>
-          </div>
-        </Card>
-      </main>
-    );
-  }
-
-  if (meals.length === 0) {
-    return (
-      <main className="mx-auto w-full max-w-6xl px-4 py-10">
-        <Card className="rounded-3xl border">
-          <CardContent className="p-10 text-center md:p-14">
-            <div className="mx-auto flex size-14 items-center justify-center rounded-3xl bg-muted text-2xl">
-              🍽️
+      <main className="mx-auto w-full max-w-7xl px-4 py-10 md:px-6">
+        <Card className="rounded-lg">
+          <CardContent className="flex gap-4 p-6">
+            <div className="flex size-11 items-center justify-center rounded-md bg-destructive/10 text-destructive">
+              <RefreshCcw className="size-5" />
             </div>
-            <h1 className="mt-4 text-xl font-semibold tracking-tight">
-              No meals found
-            </h1>
-            <p className="mt-2 text-sm text-muted-foreground">
-              Try another page or check later.
-            </p>
-
-            <div className="mt-6 flex justify-center gap-2">
-              <Button asChild variant="outline" className="rounded-xl">
-                <Link href="/">Back to home</Link>
+            <div>
+              <h1 className="text-lg font-semibold">Failed to load meals</h1>
+              <p className="mt-2 text-sm text-muted-foreground">
+                {mealsResult.error.message}
+              </p>
+              <Button asChild className="mt-5 rounded-md">
+                <Link href="/maels">Try again</Link>
               </Button>
-
-              {hasPrev ? (
-                <Button asChild className="rounded-xl">
-                  <Link href={`/maels?page=${page - 1}&limit=${limit}`}>
-                    Previous page
-                  </Link>
-                </Button>
-              ) : null}
             </div>
           </CardContent>
         </Card>
@@ -146,144 +158,171 @@ export default async function Page({
   }
 
   return (
-    <main className="mx-auto w-full max-w-6xl px-4 py-10">
-      {/* Header */}
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+    <main className="mx-auto w-full max-w-7xl px-4 py-10 md:px-6">
+      <section className="flex flex-col gap-5 md:flex-row md:items-end md:justify-between">
         <div>
-          <div className="inline-flex items-center gap-2 rounded-full border bg-background/60 px-3 py-1 text-xs text-muted-foreground">
-            <ChefHat className="size-3.5 text-primary" />
-            Fresh picks
-          </div>
-
-          <h1 className="mt-3 text-2xl font-semibold tracking-tight md:text-3xl">
+          <p className="text-sm font-medium text-primary">Explore</p>
+          <h1 className="mt-2 text-3xl font-semibold tracking-tight">
             Meals
           </h1>
-
-          <p className="mt-1 text-sm text-muted-foreground">
-            Page <span className="font-medium text-foreground">{page}</span> •
-            Showing{" "}
-            <span className="font-medium text-foreground">{meals.length}</span>
-            {typeof total === "number" ? ` of ${total}` : ""}
+          <p className="mt-2 text-sm text-muted-foreground">
+            Showing {pageItems.length} of {filtered.length} meals. Lowest live
+            price: {prices.length ? formatMoney(Math.min(...prices)) : "Not available"}.
           </p>
         </div>
+        <Button asChild variant="outline" className="rounded-md">
+          <Link href="/category">Browse categories</Link>
+        </Button>
+      </section>
 
-        <div className="flex gap-2">
-          <Button asChild variant="outline" className="rounded-xl">
-            <Link href="/">Back</Link>
+      <form
+        action="/maels"
+        className="mt-8 rounded-lg border bg-card p-4 shadow-sm"
+      >
+        <div className="grid gap-4 lg:grid-cols-[1.4fr_1fr_1fr_1fr_1fr_auto]">
+          <label className="grid gap-2 text-sm font-medium">
+            Search
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+              <Input
+                name="q"
+                defaultValue={params.q ?? ""}
+                placeholder="Search meals, providers, cuisine"
+                className="h-10 rounded-md pl-9"
+              />
+            </div>
+          </label>
+
+          <label className="grid gap-2 text-sm font-medium">
+            Category
+            <select
+              name="category"
+              defaultValue={params.category ?? "all"}
+              className="h-10 rounded-md border bg-background px-3 text-sm"
+            >
+              <option value="all">All categories</option>
+              {categories.map((category) => (
+                <option key={category.id} value={category.id}>
+                  {category.name}
+                </option>
+              ))}
+            </select>
+          </label>
+
+          <label className="grid gap-2 text-sm font-medium">
+            Cuisine
+            <select
+              name="cuisine"
+              defaultValue={params.cuisine ?? "all"}
+              className="h-10 rounded-md border bg-background px-3 text-sm"
+            >
+              <option value="all">All cuisines</option>
+              {cuisines.map((cuisine) => (
+                <option key={cuisine} value={cuisine}>
+                  {cuisine}
+                </option>
+              ))}
+            </select>
+          </label>
+
+          <label className="grid gap-2 text-sm font-medium">
+            Availability
+            <select
+              name="availability"
+              defaultValue={params.availability ?? "all"}
+              className="h-10 rounded-md border bg-background px-3 text-sm"
+            >
+              <option value="all">All meals</option>
+              <option value="available">Available</option>
+              <option value="unavailable">Unavailable</option>
+            </select>
+          </label>
+
+          <label className="grid gap-2 text-sm font-medium">
+            Max price
+            <Input
+              name="maxPrice"
+              type="number"
+              min="0"
+              max={maxKnownPrice || undefined}
+              defaultValue={params.maxPrice ?? ""}
+              placeholder={maxKnownPrice ? String(maxKnownPrice) : "Any"}
+              className="h-10 rounded-md"
+            />
+          </label>
+
+          <div className="grid gap-2 text-sm font-medium">
+            Sort
+            <select
+              name="sort"
+              defaultValue={params.sort ?? "newest"}
+              className="h-10 rounded-md border bg-background px-3 text-sm"
+            >
+              <option value="newest">Newest</option>
+              <option value="price-asc">Price: low to high</option>
+              <option value="price-desc">Price: high to low</option>
+              <option value="rating">Rating</option>
+              <option value="title">Title</option>
+            </select>
+          </div>
+        </div>
+
+        <div className="mt-4 flex flex-col gap-3 sm:flex-row">
+          <Button type="submit" className="rounded-md">
+            <Filter className="size-4" />
+            Apply filters
           </Button>
-          <Button asChild className="rounded-xl">
-            <Link href="/offers">Deals</Link>
+          <Button asChild variant="outline" className="rounded-md">
+            <Link href="/maels">Reset</Link>
           </Button>
         </div>
-      </div>
+      </form>
 
-      <Separator className="my-6" />
+      {pageItems.length ? (
+        <section className="mt-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+          {pageItems.map((meal) => (
+            <MealListingCard key={meal.id} meal={meal} />
+          ))}
+        </section>
+      ) : (
+        <Card className="mt-8 rounded-lg">
+          <CardContent className="p-8 text-center">
+            <h2 className="text-lg font-semibold">No meals match the filters</h2>
+            <p className="mt-2 text-sm text-muted-foreground">
+              Adjust search, category, cuisine, availability, or price to see
+              more results.
+            </p>
+            <Button asChild className="mt-5 rounded-md">
+              <Link href="/maels">Clear filters</Link>
+            </Button>
+          </CardContent>
+        </Card>
+      )}
 
-      {/* Grid */}
-      <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
-        {meals.map((m: any) => (
-          <Card
-            key={m.id}
-            className="group overflow-hidden rounded-3xl border bg-card shadow-sm transition hover:-translate-y-0.5 hover:shadow-md"
-          >
-            <div className="relative aspect-[4/3] w-full overflow-hidden bg-muted">
-              {m.imageUrl ? (
-                <Image
-                  src={m.imageUrl}
-                  alt={m.title}
-                  fill
-                  className="object-cover transition duration-300 group-hover:scale-[1.04]"
-                  sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-                />
-              ) : (
-                <div className="flex h-full w-full items-center justify-center text-sm text-muted-foreground">
-                  No image
-                </div>
-              )}
-
-              <div className="absolute left-3 top-3">
-                <span
-                  className={[
-                    "rounded-full border bg-background/70 px-3 py-1 text-xs font-medium backdrop-blur",
-                    m.isAvailable
-                      ? "border-emerald-200 text-emerald-700"
-                      : "border-rose-200 text-rose-700",
-                  ].join(" ")}
-                >
-                  {m.isAvailable ? "Available" : "Unavailable"}
-                </span>
-              </div>
-            </div>
-
-            <CardContent className="p-5">
-              <div className="flex items-start justify-between gap-3">
-                <div className="min-w-0">
-                  <h2 className="truncate text-base font-semibold tracking-tight">
-                    {m.title}
-                  </h2>
-                  <p className="mt-1 truncate text-sm text-muted-foreground">
-                    {m.cuisine ? `${m.cuisine} • ` : ""}
-                    {m.category?.name ?? "Uncategorized"}
-                  </p>
-                </div>
-
-                <div className="shrink-0 text-right">
-                  <p className="text-lg font-semibold">
-                    {formatBDT(Number(m.price ?? 0))}
-                  </p>
-                  <p className="text-xs text-muted-foreground">per item</p>
-                </div>
-              </div>
-
-              <div className="mt-4 flex items-center justify-between">
-                <Button asChild variant="outline" className="rounded-xl">
-                  <Link href={`/maels/${m.id}`}>View</Link>
-                </Button>
-
-                <Button
-                  asChild
-                  className="rounded-xl"
-                  disabled={!m.isAvailable}
-                >
-                  <Link href={`/maels/${m.id}`}>
-                    {m.isAvailable ? "Order" : "Unavailable"}
-                  </Link>
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
-        ))}
-      </div>
-
-      <Separator className="my-8" />
-
-      {/* Pagination */}
-      <div className="flex items-center justify-between gap-3">
+      <div className="mt-8 flex items-center justify-between gap-3 border-t pt-6">
         <Button
           asChild
           variant="outline"
-          className="rounded-xl"
-          disabled={!hasPrev}
+          className="rounded-md"
+          disabled={currentPage <= 1}
         >
-          <Link href={`/maels?page=${Math.max(1, page - 1)}&limit=${limit}`}>
-            <ArrowLeft className="mr-2 size-4" />
+          <Link href={buildHref(params, { page: String(currentPage - 1) })}>
             Previous
           </Link>
         </Button>
 
-        <div className="text-sm text-muted-foreground">
-          Page <span className="font-medium text-foreground">{page}</span>
-        </div>
+        <p className="text-sm text-muted-foreground">
+          Page {currentPage} of {pageCount}
+        </p>
 
         <Button
           asChild
           variant="outline"
-          className="rounded-xl"
-          disabled={!hasNext}
+          className="rounded-md"
+          disabled={currentPage >= pageCount}
         >
-          <Link href={`/maels?page=${page + 1}&limit=${limit}`}>
+          <Link href={buildHref(params, { page: String(currentPage + 1) })}>
             Next
-            <ArrowRight className="ml-2 size-4" />
           </Link>
         </Button>
       </div>

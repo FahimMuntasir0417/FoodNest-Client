@@ -1,14 +1,16 @@
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { initials } from "@/lib/foodnest-data";
 import type { User } from "@/types/user/user";
 
 export function UserCard({ user }: { user: User }) {
   return (
-    <div className="rounded-xl border p-4 flex gap-4">
-      {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img
-        src={user.image ?? "https://via.placeholder.com/48"}
-        alt={user.name}
-        className="h-12 w-12 rounded-full object-cover"
-      />
+    <div className="flex gap-4 rounded-lg border p-4">
+      <Avatar className="size-12 rounded-md">
+        <AvatarImage src={user.image ?? undefined} alt={user.name} />
+        <AvatarFallback className="rounded-md">
+          {initials(user.name)}
+        </AvatarFallback>
+      </Avatar>
 
       <div className="flex-1">
         <div className="font-semibold">{user.name}</div>

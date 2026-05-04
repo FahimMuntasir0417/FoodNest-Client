@@ -1,27 +1,16 @@
-// src/app/admin-dashboard/me/page.tsx
-
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Separator } from "@/components/ui/separator";
+import { ProfileForm } from "@/features/users/components/profile-form";
+import { formatDateTime } from "@/lib/foodnest-data";
 import { usersService } from "@/services/user.service";
-
-function fmtDate(iso: string) {
-  return new Date(iso).toLocaleString(undefined, {
-    year: "numeric",
-    month: "short",
-    day: "2-digit",
-    hour: "2-digit",
-    minute: "2-digit",
-  });
-}
 
 export default async function Page() {
   const { data, error } = await usersService.getMe();
 
   if (error || !data) {
     return (
-      <div className="p-6">
-        <Card>
+      <main className="mx-auto max-w-4xl px-4 py-10 md:px-6">
+        <Card className="rounded-lg">
           <CardHeader>
             <CardTitle>My Profile</CardTitle>
           </CardHeader>
@@ -30,108 +19,107 @@ export default async function Page() {
             <p className="text-muted-foreground">{error?.message}</p>
           </CardContent>
         </Card>
-      </div>
+      </main>
     );
   }
 
-  const u = data;
-
   return (
-    <div className="p-6 space-y-6">
-      <div>
-        <h1 className="text-2xl font-semibold tracking-tight">My Profile</h1>
-        <p className="text-sm text-muted-foreground">
-          Account details and access level
+    <main className="mx-auto max-w-5xl px-4 py-10 md:px-6">
+      <div className="mb-6">
+        <p className="text-sm font-medium text-primary">Dashboard profile</p>
+        <h1 className="mt-2 text-3xl font-semibold tracking-tight">
+          My Profile
+        </h1>
+        <p className="mt-2 text-sm text-muted-foreground">
+          Review access details and update your visible account information.
         </p>
       </div>
 
-      <div className="grid gap-4 md:grid-cols-3">
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">
-              Role
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="text-xl font-semibold">
-            <Badge variant="outline">{u.role}</Badge>
-          </CardContent>
-        </Card>
+      <div className="grid gap-6 lg:grid-cols-[1fr_1.1fr]">
+        <section className="space-y-4">
+          <div className="grid gap-4 sm:grid-cols-3 lg:grid-cols-1">
+            <Summary title="Role" value={data.role} badge />
+            <Summary title="Status" value={data.status} badge />
+            <Summary
+              title="Email Verified"
+              value={data.emailVerified ? "Yes" : "No"}
+              badge
+            />
+          </div>
 
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">
-              Status
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="text-xl font-semibold">
-            <Badge variant={u.status === "ACTIVE" ? "default" : "destructive"}>
-              {u.status}
-            </Badge>
-          </CardContent>
-        </Card>
+          <Card className="rounded-lg">
+            <CardHeader>
+              <CardTitle className="text-base">Account details</CardTitle>
+            </CardHeader>
+            <CardContent className="grid gap-3 text-sm">
+              <Detail label="Email" value={data.email} />
+              <Detail label="Created" value={formatDateTime(data.createdAt)} />
+              <Detail label="Updated" value={formatDateTime(data.updatedAt)} />
+              <Detail label="User ID" value={data.id} mono />
+            </CardContent>
+          </Card>
+        </section>
 
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">
-              Email Verified
-            </CardTitle>
+        <Card className="rounded-lg">
+          <CardHeader>
+            <CardTitle className="text-base">Edit profile</CardTitle>
           </CardHeader>
-          <CardContent className="text-xl font-semibold">
-            <Badge variant="secondary">{u.emailVerified ? "Yes" : "No"}</Badge>
+          <CardContent>
+            <ProfileForm
+              defaultValues={{
+                name: data.name,
+                phone: data.phone ?? "",
+              }}
+            />
           </CardContent>
         </Card>
       </div>
+    </main>
+  );
+}
 
-      <Card>
-        <CardHeader className="pb-3">
-          <CardTitle className="text-base">Details</CardTitle>
-        </CardHeader>
+function Summary({
+  title,
+  value,
+  badge,
+}: {
+  title: string;
+  value: string;
+  badge?: boolean;
+}) {
+  return (
+    <Card className="rounded-lg">
+      <CardHeader className="pb-2">
+        <CardTitle className="text-sm font-medium text-muted-foreground">
+          {title}
+        </CardTitle>
+      </CardHeader>
+      <CardContent>
+        {badge ? (
+          <Badge variant="outline">{value}</Badge>
+        ) : (
+          <p className="text-xl font-semibold">{value}</p>
+        )}
+      </CardContent>
+    </Card>
+  );
+}
 
-        <CardContent className="space-y-4 text-sm">
-          <div className="grid gap-3 md:grid-cols-2">
-            <div className="rounded-md border p-3">
-              <div className="text-muted-foreground">Name</div>
-              <div className="font-medium">{u.name}</div>
-            </div>
-
-            <div className="rounded-md border p-3">
-              <div className="text-muted-foreground">Email</div>
-              <div className="font-medium">{u.email}</div>
-            </div>
-
-            <div className="rounded-md border p-3">
-              <div className="text-muted-foreground">Phone</div>
-              <div className="font-medium">{u.phone ?? "—"}</div>
-            </div>
-
-            <div className="rounded-md border p-3">
-              <div className="text-muted-foreground">Provider ID</div>
-              <div className="font-mono text-xs break-all">
-                {u.providerId ?? "—"}
-              </div>
-            </div>
-          </div>
-
-          <Separator />
-
-          <div className="grid gap-3 md:grid-cols-2">
-            <div className="rounded-md border p-3">
-              <div className="text-muted-foreground">Created</div>
-              <div className="font-medium">{fmtDate(u.createdAt)}</div>
-            </div>
-
-            <div className="rounded-md border p-3">
-              <div className="text-muted-foreground">Updated</div>
-              <div className="font-medium">{fmtDate(u.updatedAt)}</div>
-            </div>
-
-            <div className="rounded-md border p-3 md:col-span-2">
-              <div className="text-muted-foreground">User ID</div>
-              <div className="mt-1 font-mono text-xs break-all">{u.id}</div>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
+function Detail({
+  label,
+  value,
+  mono,
+}: {
+  label: string;
+  value: string;
+  mono?: boolean;
+}) {
+  return (
+    <div className="rounded-lg border p-3">
+      <p className="text-muted-foreground">{label}</p>
+      <p className={mono ? "mt-1 break-all font-mono text-xs" : "mt-1 font-medium"}>
+        {value}
+      </p>
     </div>
   );
 }

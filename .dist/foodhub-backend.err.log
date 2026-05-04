@@ -1,0 +1,37 @@
+npm warn Unknown env config "verify-deps-before-run". This will stop working in the next major version of npm.
+npm warn Unknown env config "_jsr-registry". This will stop working in the next major version of npm.
+(node:4876) Warning: SECURITY WARNING: The SSL modes 'prefer', 'require', and 'verify-ca' are treated as aliases for 'verify-full'.
+In the next major version (pg-connection-string v3.0.0 and pg v9.0.0), these modes will adopt standard libpq semantics, which have weaker security guarantees.
+
+To prepare for this change:
+- If you want the current behavior, explicitly use 'sslmode=verify-full'
+- If you want libpq compatibility now, use 'uselibpqcompat=true&sslmode=require'
+
+See https://www.postgresql.org/docs/current/libpq-ssl.html for libpq SSL mode definitions.
+(Use `node --trace-warnings ...` to show where the warning was created)
+2026-05-04T02:02:46.702Z ERROR [Better Auth]: Error Error: Connection terminated unexpectedly
+    at E:\FoodHub\node_modules\.pnpm\pg-pool@3.11.0_pg@8.18.0\node_modules\pg-pool\index.js:45:11
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async PrismaPgAdapter.performIO (file:///E:/FoodHub/node_modules/.pnpm/@prisma+adapter-pg@7.3.0/node_modules/@prisma/adapter-pg/dist/index.mjs:616:22)
+    at async PrismaPgAdapter.queryRaw (file:///E:/FoodHub/node_modules/.pnpm/@prisma+adapter-pg@7.3.0/node_modules/@prisma/adapter-pg/dist/index.mjs:566:30)
+    at async e.interpretNode (E:\FoodHub\node_modules\.pnpm\@prisma+client@7.3.0_prisma_485d2206927cb3593a3877ff27d48346\node_modules\@prisma\client-engine-runtime\src\interpreter\query-interpreter.ts:182:26)
+    at async e.interpretNode (E:\FoodHub\node_modules\.pnpm\@prisma+client@7.3.0_prisma_485d2206927cb3593a3877ff27d48346\node_modules\@prisma\client-engine-runtime\src\interpreter\query-interpreter.ts:209:41)
+    at async e.interpretNode (E:\FoodHub\node_modules\.pnpm\@prisma+client@7.3.0_prisma_485d2206927cb3593a3877ff27d48346\node_modules\@prisma\client-engine-runtime\src\interpreter\query-interpreter.ts:268:41)
+    at async e.run (E:\FoodHub\node_modules\.pnpm\@prisma+client@7.3.0_prisma_485d2206927cb3593a3877ff27d48346\node_modules\@prisma\client-engine-runtime\src\interpreter\query-interpreter.ts:93:23)
+    at async e.execute (E:\FoodHub\node_modules\.pnpm\@prisma+client@7.3.0_prisma_485d2206927cb3593a3877ff27d48346\node_modules\@prisma\client\src\runtime\core\engines\client\LocalExecutor.ts:81:12)
+    at async Dt.request (E:\FoodHub\node_modules\.pnpm\@prisma+client@7.3.0_prisma_485d2206927cb3593a3877ff27d48346\node_modules\@prisma\client\src\runtime\core\engines\client\ClientEngine.ts:461:22) {
+  clientVersion: '7.3.0'
+}
+# SERVER_ERROR:  Error: Connection terminated unexpectedly
+    at E:\FoodHub\node_modules\.pnpm\pg-pool@3.11.0_pg@8.18.0\node_modules\pg-pool\index.js:45:11
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async PrismaPgAdapter.performIO (file:///E:/FoodHub/node_modules/.pnpm/@prisma+adapter-pg@7.3.0/node_modules/@prisma/adapter-pg/dist/index.mjs:616:22)
+    at async PrismaPgAdapter.queryRaw (file:///E:/FoodHub/node_modules/.pnpm/@prisma+adapter-pg@7.3.0/node_modules/@prisma/adapter-pg/dist/index.mjs:566:30)
+    at async e.interpretNode (E:\FoodHub\node_modules\.pnpm\@prisma+client@7.3.0_prisma_485d2206927cb3593a3877ff27d48346\node_modules\@prisma\client-engine-runtime\src\interpreter\query-interpreter.ts:182:26)
+    at async e.interpretNode (E:\FoodHub\node_modules\.pnpm\@prisma+client@7.3.0_prisma_485d2206927cb3593a3877ff27d48346\node_modules\@prisma\client-engine-runtime\src\interpreter\query-interpreter.ts:209:41)
+    at async e.interpretNode (E:\FoodHub\node_modules\.pnpm\@prisma+client@7.3.0_prisma_485d2206927cb3593a3877ff27d48346\node_modules\@prisma\client-engine-runtime\src\interpreter\query-interpreter.ts:268:41)
+    at async e.run (E:\FoodHub\node_modules\.pnpm\@prisma+client@7.3.0_prisma_485d2206927cb3593a3877ff27d48346\node_modules\@prisma\client-engine-runtime\src\interpreter\query-interpreter.ts:93:23)
+    at async e.execute (E:\FoodHub\node_modules\.pnpm\@prisma+client@7.3.0_prisma_485d2206927cb3593a3877ff27d48346\node_modules\@prisma\client\src\runtime\core\engines\client\LocalExecutor.ts:81:12)
+    at async Dt.request (E:\FoodHub\node_modules\.pnpm\@prisma+client@7.3.0_prisma_485d2206927cb3593a3877ff27d48346\node_modules\@prisma\client\src\runtime\core\engines\client\ClientEngine.ts:461:22) {
+  clientVersion: '7.3.0'
+}

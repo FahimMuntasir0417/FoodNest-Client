@@ -3,6 +3,8 @@
 import { UsersTable } from "@/lib/components/ui/users-table";
 
 import { usersService } from "@/services/user.service";
+import { toArray } from "@/lib/foodnest-data";
+import type { User } from "@/types";
 
 export default async function Page() {
   const { data, error } = await usersService.getAll();
@@ -18,10 +20,10 @@ export default async function Page() {
     );
   }
 
-  const users = Array.isArray(data) ? data : [];
+  const users = toArray<User>(data);
 
   return (
-    <div className="p-6 space-y-4">
+    <div className="space-y-4">
       <div>
         <h1 className="text-2xl font-semibold tracking-tight">Users</h1>
         <p className="text-sm text-muted-foreground">

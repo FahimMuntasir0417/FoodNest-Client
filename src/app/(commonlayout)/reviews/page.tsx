@@ -1,152 +1,101 @@
-// src/app/(commonlayout)/reviews/page.tsx
 import Link from "next/link";
 import type { Metadata } from "next";
+import { Star } from "lucide-react";
 
-import { reviewsService } from "@/services/reviews.service";
-import type { Review } from "@/services/reviews.service";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { formatDateTime, toArray } from "@/lib/foodnest-data";
+import { reviewsService, type Review } from "@/services/reviews.service";
 
-export const dynamic = "force-dynamic"; // because your service uses cache: "no-store"
+export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
-  title: "All Reviews",
-  description: "Browse all customer reviews",
+  title: "All Reviews | FoodNest",
+  description: "Browse customer reviews on FoodNest.",
 };
 
-function clampRating(r: number) {
-  if (Number.isNaN(r)) return 0;
-  return Math.min(5, Math.max(0, Math.round(r)));
-}
-
-function Stars({ rating }: { rating: number }) {
-  const r = clampRating(rating);
-  return (
-    <span
-      aria-label={`${r} out of 5 stars`}
-      className="inline-flex items-center gap-0.5"
-    >
-      {Array.from({ length: 5 }).map((_, i) => (
-        <span key={i} className={i < r ? "text-amber-500" : "text-zinc-300"}>
-          ★
-        </span>
-      ))}
-    </span>
-  );
-}
-
-function formatDateTime(iso: string) {
-  const d = new Date(iso);
-  if (Number.isNaN(d.getTime())) return iso;
-  return d.toLocaleString(undefined, {
-    year: "numeric",
-    month: "short",
-    day: "2-digit",
-    hour: "2-digit",
-    minute: "2-digit",
-  });
+function clampRating(rating: number) {
+  if (Number.isNaN(rating)) return 0;
+  return Math.min(5, Math.max(0, Math.round(rating)));
 }
 
 export default async function ReviewsPage() {
-  const res = await reviewsService.getAll();
+  const result = await reviewsService.getAll();
 
-  if (res.error) {
+  if (result.error) {
     return (
-      <main className="mx-auto w-full max-w-5xl px-4 py-10">
-        <div className="rounded-2xl border border-rose-200 bg-rose-50 p-6">
-          <h1 className="text-lg font-semibold text-rose-800">
-            Failed to load reviews
-          </h1>
-          <p className="mt-2 text-sm text-rose-700">{res.error.message}</p>
-          <p className="mt-1 text-xs text-rose-700/80">
-            Try refreshing the page. If it keeps happening, check API_URL and
-            the /reviews endpoint.
-          </p>
-        </div>
+      <main className="mx-auto w-full max-w-5xl px-4 py-10 md:px-6">
+        <Card className="rounded-lg">
+          <CardHeader>
+            <CardTitle>Failed to load reviews</CardTitle>
+          </CardHeader>
+          <CardContent className="text-sm text-muted-foreground">
+            {result.error.message}
+          </CardContent>
+        </Card>
       </main>
     );
   }
 
-  const reviews: Review[] = res.data ?? [];
+  const reviews = toArray<Review>(result.data);
 
   return (
-    <main className="mx-auto w-full max-w-5xl px-4 py-10">
-      {/* Header */}
-      <div className="flex flex-wrap items-end justify-between gap-4">
+    <main className="mx-auto w-full max-w-5xl px-4 py-10 md:px-6">
+      <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
         <div>
-          <h1 className="text-2xl font-semibold tracking-tight text-zinc-900">
-            All Reviews
+          <p className="text-sm font-medium text-primary">Reviews</p>
+          <h1 className="mt-2 text-3xl font-semibold tracking-tight">
+            Customer reviews
           </h1>
-          <p className="mt-1 text-sm text-zinc-600">
-            {reviews.length} review(s) in total
+          <p className="mt-2 text-sm text-muted-foreground">
+            {reviews.length} review{reviews.length === 1 ? "" : "s"} returned
+            by the API.
           </p>
         </div>
-
-        <Link
-          href="/maels"
-          className="inline-flex items-center justify-center rounded-xl border border-zinc-200 px-4 py-2 text-sm font-medium text-zinc-900 hover:bg-zinc-50"
-        >
-          Back to meals
-        </Link>
+        <Button asChild variant="outline" className="rounded-md">
+          <Link href="/maels">Back to meals</Link>
+        </Button>
       </div>
 
-      {/* Empty */}
-      {reviews.length === 0 ? (
-        <div className="mt-8 rounded-2xl border border-zinc-200 bg-white p-10 text-center shadow-sm">
-          <p className="text-sm text-zinc-600">No reviews found.</p>
-        </div>
-      ) : (
-        <ul className="mt-8 space-y-4">
-          {reviews.map((r) => (
-            <li
-              key={r.id}
-              className="rounded-2xl border border-zinc-200 bg-white p-5 shadow-sm"
-            >
-              <div className="flex flex-wrap items-start justify-between gap-4">
-                <div className="min-w-0">
-                  <p className="truncate text-base font-semibold text-zinc-900">
-                    {r.customer?.name ?? "Customer"}
+      {reviews.length ? (
+        <ul className="mt-8 grid gap-4">
+          {reviews.map((review) => (
+            <li key={review.id}>
+              <Card className="rounded-lg">
+                <CardContent className="p-5">
+                  <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
+                    <div>
+                      <p className="font-semibold">
+                        {review.customer?.name || "FoodNest customer"}
+                      </p>
+                      <p className="mt-1 text-xs text-muted-foreground">
+                        {formatDateTime(review.createdAt)}
+                      </p>
+                    </div>
+                    <div className="flex items-center gap-2 text-sm">
+                      <Star className="size-4 text-secondary-foreground" />
+                      <span>{clampRating(Number(review.rating ?? 0))} / 5</span>
+                    </div>
+                  </div>
+                  <p className="mt-4 text-sm leading-6 text-muted-foreground">
+                    {review.comment || "No written comment was added."}
                   </p>
-
-                  <div className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-zinc-500">
-                    <span>{formatDateTime(r.createdAt)}</span>
-
-                    {r.mealId ? (
-                      <>
-                        <span className="text-zinc-300">•</span>
-                        <span className="font-mono">Meal: {r.mealId}</span>
-                      </>
-                    ) : null}
-                  </div>
-                </div>
-
-                <div className="shrink-0 text-right">
-                  <div className="flex items-center justify-end gap-2">
-                    <Stars rating={r.rating} />
-                    <span className="text-sm text-zinc-700">
-                      {clampRating(r.rating)}/5
-                    </span>
-                  </div>
-
-                  {r.mealId ? (
-                    <Link
-                      href={`/maels/${r.mealId}`}
-                      className="mt-2 inline-flex items-center justify-center rounded-xl border border-zinc-200 px-3 py-1.5 text-xs font-medium text-zinc-900 hover:bg-zinc-50"
-                    >
-                      View meal
-                    </Link>
+                  {review.mealId ? (
+                    <Button asChild variant="outline" size="sm" className="mt-4 rounded-md">
+                      <Link href={`/maels/${review.mealId}`}>View meal</Link>
+                    </Button>
                   ) : null}
-                </div>
-              </div>
-
-              {r.comment ? (
-                <p className="mt-4 text-sm leading-6 text-zinc-700">
-                  {r.comment}
-                </p>
-              ) : (
-                <p className="mt-4 text-sm text-zinc-500">No comment.</p>
-              )}
+                </CardContent>
+              </Card>
             </li>
           ))}
         </ul>
+      ) : (
+        <Card className="mt-8 rounded-lg">
+          <CardContent className="p-8 text-center text-sm text-muted-foreground">
+            Reviews will appear here after customers submit feedback.
+          </CardContent>
+        </Card>
       )}
     </main>
   );

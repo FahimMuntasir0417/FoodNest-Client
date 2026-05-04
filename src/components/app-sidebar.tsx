@@ -23,8 +23,8 @@ export function AppSidebar({
   user,
   ...props
 }: {
-  user: { role: string } & React.ComponentProps<typeof Sidebar>;
-}) {
+  user: { role: string };
+} & React.ComponentProps<typeof Sidebar>) {
   let routes: Route[] = [];
 
   switch (user.role) {
@@ -44,6 +44,14 @@ export function AppSidebar({
 
   return (
     <Sidebar {...props}>
+      <SidebarHeader className="border-b p-4">
+        <Link href="/" className="flex items-center gap-2">
+          <span className="flex size-8 items-center justify-center rounded-md bg-sidebar-primary text-xs font-semibold text-sidebar-primary-foreground">
+            FN
+          </span>
+          <span className="font-semibold tracking-tight">FoodNest</span>
+        </Link>
+      </SidebarHeader>
       <SidebarContent>
         {routes.map((item) => (
           <SidebarGroup key={item.title}>
