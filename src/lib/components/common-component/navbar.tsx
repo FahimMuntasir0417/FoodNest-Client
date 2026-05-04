@@ -2,6 +2,7 @@
 
 import * as React from "react";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import {
   ChevronDown,
   LayoutDashboard,
@@ -43,6 +44,7 @@ type SessionUser = {
 };
 
 const publicRoutes = [
+  { title: "Home", href: "/" },
   { title: "Providers", href: "/provider" },
   { title: "Blog", href: "/blog" },
   { title: "About", href: "/about" },
@@ -68,7 +70,13 @@ const exploreRoutes = [
 ];
 
 const navbarHoverClass =
-  "hover:bg-[#0f2818] hover:text-white data-[state=open]:bg-[#0f2818] data-[state=open]:text-white";
+  "hover:bg-accent hover:text-accent-foreground data-[state=open]:bg-accent data-[state=open]:text-accent-foreground";
+const navbarActiveClass = "bg-accent text-accent-foreground";
+
+function isRouteActive(pathname: string, href: string) {
+  if (href === "/") return pathname === "/";
+  return pathname === href || pathname.startsWith(`${href}/`);
+}
 
 function getDashboardUrl(role?: string | null) {
   if (role === "ADMIN") return "/admin-dashboard";
@@ -89,6 +97,7 @@ function extractUser(payload: unknown): SessionUser | null {
 }
 
 export function Navbar({ className }: { className?: string }) {
+  const pathname = usePathname();
   const [user, setUser] = React.useState<SessionUser | null>(null);
 
   React.useEffect(() => {
@@ -128,6 +137,9 @@ export function Navbar({ className }: { className?: string }) {
   const ordersUrl = getOrdersUrl(user?.role);
   const isAuthenticated = Boolean(user);
   const navRoutes = publicRoutes;
+  const isExploreActive = exploreRoutes.some((route) =>
+    isRouteActive(pathname, route.href),
+  );
 
   async function handleLogout() {
     try {
@@ -149,18 +161,24 @@ export function Navbar({ className }: { className?: string }) {
         </Link>
 
         <nav className="hidden items-center gap-1 lg:flex">
-          <ExploreDropdown />
-          {navRoutes.map((route) => (
-            <Button
-              key={route.href}
-              asChild
-              variant="ghost"
-              size="sm"
-              className={navbarHoverClass}
-            >
-              <Link href={route.href}>{route.title}</Link>
-            </Button>
-          ))}
+          <ExploreDropdown pathname={pathname} isActive={isExploreActive} />
+          {navRoutes.map((route) => {
+            const active = isRouteActive(pathname, route.href);
+
+            return (
+              <Button
+                key={route.href}
+                asChild
+                variant="ghost"
+                size="sm"
+                className={cn(navbarHoverClass, active && navbarActiveClass)}
+              >
+                <Link href={route.href} aria-current={active ? "page" : undefined}>
+                  {route.title}
+                </Link>
+              </Button>
+            );
+          })}
         </nav>
 
         <div className="hidden items-center gap-2 lg:flex">
@@ -170,17 +188,35 @@ export function Navbar({ className }: { className?: string }) {
                 asChild
                 variant="ghost"
                 size="sm"
-                className={navbarHoverClass}
+                className={cn(
+                  navbarHoverClass,
+                  isRouteActive(pathname, ordersUrl) && navbarActiveClass,
+                )}
               >
-                <Link href={ordersUrl}>Track Order</Link>
+                <Link
+                  href={ordersUrl}
+                  aria-current={
+                    isRouteActive(pathname, ordersUrl) ? "page" : undefined
+                  }
+                >
+                  Track Order
+                </Link>
               </Button>
               <Button
                 asChild
                 variant="ghost"
                 size="sm"
-                className={navbarHoverClass}
+                className={cn(
+                  navbarHoverClass,
+                  pathname === dashboardUrl && navbarActiveClass,
+                )}
               >
-                <Link href={dashboardUrl}>Dashboard</Link>
+                <Link
+                  href={dashboardUrl}
+                  aria-current={pathname === dashboardUrl ? "page" : undefined}
+                >
+                  Dashboard
+                </Link>
               </Button>
               <ModeToggle />
               <ProfileMenu
@@ -233,9 +269,16 @@ export function Navbar({ className }: { className?: string }) {
                       <Link
                         key={route.href}
                         href={route.href}
+                        aria-current={
+                          isRouteActive(pathname, route.href)
+                            ? "page"
+                            : undefined
+                        }
                         className={cn(
                           "rounded-md border p-3 text-sm font-medium",
                           navbarHoverClass,
+                          isRouteActive(pathname, route.href) &&
+                            navbarActiveClass,
                         )}
                       >
                         {route.title}
@@ -245,45 +288,65 @@ export function Navbar({ className }: { className?: string }) {
                 </div>
 
                 <div className="grid gap-2">
-                  {navRoutes.map((route) => (
-                    <Link
-                      key={route.href}
-                      href={route.href}
-                      className={cn(
-                        "rounded-md px-2 py-2 text-sm font-medium",
-                        navbarHoverClass,
-                      )}
-                    >
-                      {route.title}
-                    </Link>
-                  ))}
+                  {navRoutes.map((route) => {
+                    const active = isRouteActive(pathname, route.href);
+
+                    return (
+                      <Link
+                        key={route.href}
+                        href={route.href}
+                        aria-current={active ? "page" : undefined}
+                        className={cn(
+                          "rounded-md px-2 py-2 text-sm font-medium",
+                          navbarHoverClass,
+                          active && navbarActiveClass,
+                        )}
+                      >
+                        {route.title}
+                      </Link>
+                    );
+                  })}
                 </div>
 
                 {isAuthenticated ? (
                   <div className="grid gap-2 border-t pt-4">
                     <Link
                       href={ordersUrl}
+                      aria-current={
+                        isRouteActive(pathname, ordersUrl) ? "page" : undefined
+                      }
                       className={cn(
                         "rounded-md px-2 py-2 text-sm font-medium",
                         navbarHoverClass,
+                        isRouteActive(pathname, ordersUrl) &&
+                          navbarActiveClass,
                       )}
                     >
                       Track Order
                     </Link>
                     <Link
                       href={dashboardUrl}
+                      aria-current={
+                        pathname === dashboardUrl ? "page" : undefined
+                      }
                       className={cn(
                         "rounded-md px-2 py-2 text-sm font-medium",
                         navbarHoverClass,
+                        pathname === dashboardUrl && navbarActiveClass,
                       )}
                     >
                       Dashboard
                     </Link>
                     <Link
                       href="/dashboard-profile"
+                      aria-current={
+                        pathname === "/dashboard-profile" ? "page" : undefined
+                      }
                       className={cn(
                         "rounded-md px-2 py-2 text-sm font-medium",
                         navbarHoverClass,
+                        pathname === "/dashboard-profile" &&
+                          navbarActiveClass,
                       )}
                     >
                       Profile
@@ -315,11 +378,22 @@ export function Navbar({ className }: { className?: string }) {
   );
 }
 
-function ExploreDropdown() {
+function ExploreDropdown({
+  pathname,
+  isActive,
+}: {
+  pathname: string;
+  isActive: boolean;
+}) {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="ghost" size="sm" className={navbarHoverClass}>
+        <Button
+          variant="ghost"
+          size="sm"
+          className={cn(navbarHoverClass, isActive && navbarActiveClass)}
+          aria-current={isActive ? "page" : undefined}
+        >
           Explore
           <ChevronDown className="size-4" />
         </Button>
@@ -329,7 +403,16 @@ function ExploreDropdown() {
         <DropdownMenuSeparator />
         {exploreRoutes.map((route) => (
           <DropdownMenuItem key={route.href} asChild>
-            <Link href={route.href} className="flex flex-col items-start gap-1">
+            <Link
+              href={route.href}
+              aria-current={
+                isRouteActive(pathname, route.href) ? "page" : undefined
+              }
+              className={cn(
+                "flex flex-col items-start gap-1",
+                isRouteActive(pathname, route.href) && navbarActiveClass,
+              )}
+            >
               <span className="font-medium">{route.title}</span>
               <span className="text-xs text-muted-foreground">
                 {route.description}

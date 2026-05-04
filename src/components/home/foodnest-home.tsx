@@ -65,12 +65,14 @@ const serviceSteps = [
   },
   {
     title: "Order",
-    description: "Review details, add meals to cart, and place delivery orders.",
+    description:
+      "Review details, add meals to cart, and place delivery orders.",
     icon: Truck,
   },
   {
     title: "Manage",
-    description: "Use the dashboard to review orders, menus, users, and reports.",
+    description:
+      "Use the dashboard to review orders, menus, users, and reports.",
     icon: Store,
   },
 ];
@@ -78,17 +80,20 @@ const serviceSteps = [
 const orderJourney = [
   {
     title: "Order placed",
-    description: "Customers can review meals, quantities, totals, and delivery details.",
+    description:
+      "Customers can review meals, quantities, totals, and delivery details.",
     icon: ShoppingBag,
   },
   {
     title: "Kitchen update",
-    description: "Providers can move orders through preparation and delivery states.",
+    description:
+      "Providers can move orders through preparation and delivery states.",
     icon: ChefHat,
   },
   {
     title: "Delivery tracked",
-    description: "The customer dashboard keeps order status and history easy to scan.",
+    description:
+      "The customer dashboard keeps order status and history easy to scan.",
     icon: Truck,
   },
 ];
@@ -96,17 +101,20 @@ const orderJourney = [
 const providerTools = [
   {
     title: "Menu control",
-    description: "Create meals, assign categories, update prices, and manage availability.",
+    description:
+      "Create meals, assign categories, update prices, and manage availability.",
     icon: Store,
   },
   {
     title: "Order handling",
-    description: "Review incoming orders and update status from one focused workflow.",
+    description:
+      "Review incoming orders and update status from one focused workflow.",
     icon: PackageCheck,
   },
   {
     title: "Profile visibility",
-    description: "Shop details, contact information, and locations are visible to customers.",
+    description:
+      "Shop details, contact information, and locations are visible to customers.",
     icon: BadgeCheck,
   },
 ];
@@ -114,22 +122,26 @@ const providerTools = [
 const promiseItems = [
   {
     title: "Verified providers",
-    description: "Provider profiles and dashboard access are tied to authenticated users.",
+    description:
+      "Provider profiles and dashboard access are tied to authenticated users.",
     icon: ShieldCheck,
   },
   {
     title: "Transparent pricing",
-    description: "Meal cards show price, provider, category, and availability before checkout.",
+    description:
+      "Meal cards show price, provider, category, and availability before checkout.",
     icon: ShoppingBag,
   },
   {
     title: "Order history",
-    description: "Customers and admins can review order records after checkout.",
+    description:
+      "Customers and admins can review order records after checkout.",
     icon: Clock,
   },
   {
     title: "Support-ready pages",
-    description: "Help, contact, privacy, and terms pages are available from the public site.",
+    description:
+      "Help, contact, privacy, and terms pages are available from the public site.",
     icon: MessageSquare,
   },
 ];
@@ -420,7 +432,9 @@ export function FoodNestHome({
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="text-sm text-muted-foreground">
-                  <p>{rating ? `${rating.toFixed(1)} out of 5` : "No rating yet"}</p>
+                  <p>
+                    {rating ? `${rating.toFixed(1)} out of 5` : "No rating yet"}
+                  </p>
                   <Link
                     href={`/maels/${meal.id}`}
                     className="mt-3 inline-flex items-center gap-2 font-medium text-primary hover:underline"
@@ -522,16 +536,14 @@ function DiscountSection({ meals }: { meals: Meal[] }) {
   const discounts = [25, 20, 15];
 
   return (
-    <section className="border-y bg-primary text-primary-foreground">
+    <section className="border-y border-emerald-800/40 bg-white text-black dark:bg-[#00121A] dark:text-white">
       <div className="mx-auto grid max-w-7xl gap-8 px-4 py-12 md:grid-cols-[0.9fr_1.1fr] md:items-center md:px-6">
         <div className="max-w-xl">
-          <p className="text-sm font-medium text-primary-foreground/75">
-            Limited deals
-          </p>
+          <p className="text-sm font-medium text-white/70">Limited deals</p>
           <h2 className="mt-2 text-3xl font-semibold md:text-4xl">
             Save on featured FoodNest meals today.
           </h2>
-          <p className="mt-4 text-sm leading-6 text-primary-foreground/80 md:text-base">
+          <p className="mt-4 text-sm leading-6 text-white/75 md:text-base">
             Highlight seasonal offers, launch deals, and value meals without
             sending customers away from the live menu.
           </p>
@@ -545,7 +557,7 @@ function DiscountSection({ meals }: { meals: Meal[] }) {
             <Button
               asChild
               variant="outline"
-              className="rounded-md border-primary-foreground/25 bg-transparent text-primary-foreground hover:bg-primary-foreground/10 hover:text-primary-foreground"
+              className="rounded-md border-white/20 bg-transparent text-white hover:bg-white/10 hover:text-white"
             >
               <Link href="/category">View categories</Link>
             </Button>
@@ -562,9 +574,9 @@ function DiscountSection({ meals }: { meals: Meal[] }) {
                 <Link
                   key={meal.id}
                   href={`/maels/${meal.id}`}
-                  className="grid gap-4 rounded-lg border border-primary-foreground/15 bg-primary-foreground/10 p-3 transition hover:bg-primary-foreground/15 sm:grid-cols-[96px_1fr_auto] sm:items-center"
+                  className="grid gap-4 rounded-lg border border-white/10 bg-white/[0.08] p-3 transition hover:bg-white/[0.12] sm:grid-cols-[96px_1fr_auto] sm:items-center"
                 >
-                  <div className="relative aspect-square overflow-hidden rounded-md bg-primary-foreground/10">
+                  <div className="relative aspect-square overflow-hidden rounded-md bg-white/10">
                     <Image
                       src={mealImage(meal)}
                       alt={meal.title}
@@ -575,7 +587,7 @@ function DiscountSection({ meals }: { meals: Meal[] }) {
                   </div>
                   <div className="min-w-0">
                     <p className="text-sm font-semibold">{meal.title}</p>
-                    <p className="mt-1 line-clamp-2 text-sm text-primary-foreground/75">
+                    <p className="mt-1 line-clamp-2 text-sm text-white/70">
                       {meal.description || "Featured FoodNest meal"}
                     </p>
                   </div>
@@ -584,7 +596,7 @@ function DiscountSection({ meals }: { meals: Meal[] }) {
                     <p className="mt-1 text-lg font-semibold">
                       {formatMoney(discountedPrice)}
                     </p>
-                    <p className="text-xs text-primary-foreground/65">
+                    <p className="text-xs text-white/55">
                       was {formatMoney(meal.price)}
                     </p>
                   </div>
@@ -593,9 +605,9 @@ function DiscountSection({ meals }: { meals: Meal[] }) {
             })}
           </div>
         ) : (
-          <div className="rounded-lg border border-primary-foreground/15 bg-primary-foreground/10 p-6">
+          <div className="rounded-lg border border-white/10 bg-white/[0.08] p-6">
             <p className="font-semibold">Discount meals are loading</p>
-            <p className="mt-2 text-sm leading-6 text-primary-foreground/75">
+            <p className="mt-2 text-sm leading-6 text-white/70">
               Deals will appear here as soon as the meal API returns featured
               items.
             </p>
@@ -697,7 +709,9 @@ function TrackOrderSection() {
 
         <div className="mt-6 flex flex-col gap-3 sm:flex-row">
           <Button asChild className="rounded-md">
-            <Link href="/customer-dashboard/customer-order">Track my order</Link>
+            <Link href="/customer-dashboard/customer-order">
+              Track my order
+            </Link>
           </Button>
           <Button asChild variant="outline" className="rounded-md">
             <Link href="/order-item">View cart</Link>

@@ -1,28 +1,25 @@
 "use client";
 
-import * as React from "react";
 import Link from "next/link";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { ArrowUp, Clock, Mail, MapPin, Phone } from "lucide-react";
-import { Controller, useForm } from "react-hook-form";
-import { siFacebook, siInstagram, siX, type SimpleIcon } from "simple-icons";
-import { z } from "zod";
+import {
+  ArrowUp,
+  Clock,
+  Facebook,
+  Linkedin,
+  Mail,
+  MapPin,
+  MessageCircle,
+  Phone,
+  type LucideIcon,
+} from "lucide-react";
 
 import { Button } from "@/components/ui/button";
-import { Field, FieldError } from "@/components/ui/field";
-import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
 import { cn } from "@/lib/utils";
 
 type FooterLink = { text: string; href: string };
 type FooterSection = { title: string; items: FooterLink[] };
-type SocialLink = { href: string; icon: SimpleIcon };
-
-const newsletterSchema = z.object({
-  email: z.email("Enter a valid email address."),
-});
-
-type NewsletterValues = z.infer<typeof newsletterSchema>;
+type SocialLink = { href: string; title: string; Icon: LucideIcon };
 
 const footerSections: FooterSection[] = [
   {
@@ -53,9 +50,26 @@ const footerSections: FooterSection[] = [
 ];
 
 const socialLinks: SocialLink[] = [
-  { icon: siFacebook, href: "https://www.facebook.com/" },
-  { icon: siInstagram, href: "https://www.instagram.com/" },
-  { icon: siX, href: "https://x.com/" },
+  {
+    title: "Facebook",
+    Icon: Facebook,
+    href: "https://www.facebook.com/mohammad.fahim.muntasir",
+  },
+  {
+    title: "LinkedIn",
+    Icon: Linkedin,
+    href: "https://www.linkedin.com/in/md-fahim-muntasir-aa536b366/",
+  },
+  {
+    title: "WhatsApp",
+    Icon: MessageCircle,
+    href: "https://wa.me/8801935880417",
+  },
+  {
+    title: "Email",
+    Icon: Mail,
+    href: "mailto:fahimmuntasirbejoy@gmail.com",
+  },
 ];
 
 export default function EcommerceFooter1({
@@ -81,7 +95,6 @@ export default function EcommerceFooter1({
               public menus, transparent order tracking, and role-based
               dashboards.
             </p>
-            <NewsletterForm />
           </div>
 
           <div className="grid gap-8 sm:grid-cols-3">
@@ -117,14 +130,31 @@ export default function EcommerceFooter1({
               </li>
               <li className="flex gap-3">
                 <Mail className="mt-0.5 size-4 shrink-0 text-primary" />
-                <a href="mailto:support@foodnest.app" className="hover:underline">
-                  support@foodnest.app
+                <a
+                  href="mailto:fahimmuntasirbejoy@gmail.com"
+                  className="hover:underline"
+                >
+                  fahimmuntasirbejoy@gmail.com
+                </a>
+              </li>
+              <li className="flex gap-3">
+                <Linkedin className="mt-0.5 size-4 shrink-0 text-primary" />
+                <a
+                  href="https://www.linkedin.com/in/md-fahim-muntasir-aa536b366/"
+                  className="hover:underline"
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  md-fahim-muntasir-aa536b366
                 </a>
               </li>
               <li className="flex gap-3">
                 <Phone className="mt-0.5 size-4 shrink-0 text-primary" />
-                <a href="tel:+8801700000000" className="hover:underline">
-                  +880 1700 000 000
+                <a
+                  href="https://wa.me/8801935880417"
+                  className="hover:underline"
+                >
+                  WhatsApp: +880 1935 880 417
                 </a>
               </li>
               <li className="flex gap-3">
@@ -134,28 +164,8 @@ export default function EcommerceFooter1({
             </ul>
 
             <ul className="mt-6 flex gap-2">
-              {socialLinks.map(({ icon, href }) => (
-                <li key={icon.slug}>
-                  <Button
-                    asChild
-                    size="icon"
-                    variant="outline"
-                    className="rounded-md"
-                  >
-                    <a href={href} aria-label={icon.title}>
-                      <img
-                        className="size-4 dark:hidden"
-                        alt=""
-                        src={`https://cdn.simpleicons.org/${icon.slug}/1f2937`}
-                      />
-                      <img
-                        className="hidden size-4 dark:block"
-                        alt=""
-                        src={`https://cdn.simpleicons.org/${icon.slug}/f8fafc`}
-                      />
-                    </a>
-                  </Button>
-                </li>
+              {socialLinks.map((link) => (
+                <SocialButton key={link.title} link={link} />
               ))}
             </ul>
           </div>
@@ -181,56 +191,21 @@ export default function EcommerceFooter1({
   );
 }
 
-function NewsletterForm() {
-  const [success, setSuccess] = React.useState(false);
-  const form = useForm<NewsletterValues>({
-    resolver: zodResolver(newsletterSchema),
-    defaultValues: { email: "" },
-  });
-
-  function onSubmit() {
-    setSuccess(false);
-    return new Promise<void>((resolve) => {
-      window.setTimeout(() => {
-        setSuccess(true);
-        form.reset();
-        resolve();
-      }, 500);
-    });
-  }
+function SocialButton({ link }: { link: SocialLink }) {
+  const Icon = link.Icon;
 
   return (
-    <form className="space-y-3" onSubmit={form.handleSubmit(onSubmit)} noValidate>
-      <Controller
-        name="email"
-        control={form.control}
-        render={({ field, fieldState }) => (
-          <Field data-invalid={fieldState.invalid}>
-            <Input
-              {...field}
-              type="email"
-              autoComplete="email"
-              placeholder="Email address"
-              aria-invalid={fieldState.invalid}
-              disabled={form.formState.isSubmitting}
-              className="h-10 rounded-md"
-            />
-            <FieldError errors={[fieldState.error]} />
-          </Field>
-        )}
-      />
-      <Button
-        type="submit"
-        className="h-10 w-full rounded-md"
-        disabled={form.formState.isSubmitting}
-      >
-        {form.formState.isSubmitting ? "Subscribing..." : "Subscribe"}
+    <li>
+      <Button asChild size="icon" variant="outline" className="rounded-md">
+        <a
+          href={link.href}
+          aria-label={link.title}
+          target="_blank"
+          rel="noreferrer"
+        >
+          <Icon className="size-4" />
+        </a>
       </Button>
-      {success ? (
-        <p className="text-sm font-medium text-primary">
-          Subscription saved for FoodNest updates.
-        </p>
-      ) : null}
-    </form>
+    </li>
   );
 }

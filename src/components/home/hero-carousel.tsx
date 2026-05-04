@@ -63,7 +63,7 @@ export function HeroCarousel({ slides }: { slides: HeroSlide[] }) {
           <h1 className="mt-5 max-w-2xl text-4xl font-semibold tracking-tight text-foreground md:text-6xl">
             FoodNest
           </h1>
-          <p className="mt-4 max-w-2xl text-lg leading-8 text-muted-foreground md:text-xl">
+          <p className="mt-4 max-w-2xl text-lg leading-8 text-black dark:text-white md:text-xl">
             Order fresh meals from verified local providers, compare menus by
             cuisine and price, and track every order from a role-aware
             dashboard.

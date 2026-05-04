@@ -26,7 +26,7 @@ type SearchParams = {
   page?: string;
 };
 
-const PAGE_SIZE = 12;
+const PAGE_SIZE = 6;
 
 function toPage(value?: string) {
   const page = Number(value);
@@ -279,7 +279,7 @@ export default async function Page({
       </form>
 
       {pageItems.length ? (
-        <section className="mt-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+        <section className="mt-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
           {pageItems.map((meal) => (
             <MealListingCard key={meal.id} meal={meal} />
           ))}
