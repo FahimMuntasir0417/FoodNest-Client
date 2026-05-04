@@ -52,7 +52,7 @@ export function HeroCarousel({ slides }: { slides: HeroSlide[] }) {
         className="object-cover"
         sizes="100vw"
       />
-      <div className="absolute inset-0 bg-background/78 dark:bg-background/72" />
+      <div className="absolute inset-0 bg-background/15 dark:bg-background/27" />
 
       <div className="relative mx-auto flex min-h-[62vh] max-w-7xl flex-col justify-center px-4 py-14 md:px-6">
         <div className="max-w-3xl">
@@ -76,7 +76,12 @@ export function HeroCarousel({ slides }: { slides: HeroSlide[] }) {
                 <Search className="size-4" />
               </Link>
             </Button>
-            <Button asChild size="lg" variant="outline" className="h-11 rounded-md">
+            <Button
+              asChild
+              size="lg"
+              variant="outline"
+              className="h-11 rounded-md"
+            >
               <Link href={active.href}>
                 Featured: {active.title}
                 <ArrowRight className="size-4" />

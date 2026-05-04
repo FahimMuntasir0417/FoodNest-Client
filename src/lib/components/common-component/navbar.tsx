@@ -67,6 +67,9 @@ const exploreRoutes = [
   },
 ];
 
+const navbarHoverClass =
+  "hover:bg-[#0f2818] hover:text-white data-[state=open]:bg-[#0f2818] data-[state=open]:text-white";
+
 function getDashboardUrl(role?: string | null) {
   if (role === "ADMIN") return "/admin-dashboard";
   if (role === "PROVIDER") return "/provider-dashboard";
@@ -148,7 +151,13 @@ export function Navbar({ className }: { className?: string }) {
         <nav className="hidden items-center gap-1 lg:flex">
           <ExploreDropdown />
           {navRoutes.map((route) => (
-            <Button key={route.href} asChild variant="ghost" size="sm">
+            <Button
+              key={route.href}
+              asChild
+              variant="ghost"
+              size="sm"
+              className={navbarHoverClass}
+            >
               <Link href={route.href}>{route.title}</Link>
             </Button>
           ))}
@@ -157,10 +166,20 @@ export function Navbar({ className }: { className?: string }) {
         <div className="hidden items-center gap-2 lg:flex">
           {isAuthenticated ? (
             <>
-              <Button asChild variant="ghost" size="sm">
+              <Button
+                asChild
+                variant="ghost"
+                size="sm"
+                className={navbarHoverClass}
+              >
                 <Link href={ordersUrl}>Track Order</Link>
               </Button>
-              <Button asChild variant="ghost" size="sm">
+              <Button
+                asChild
+                variant="ghost"
+                size="sm"
+                className={navbarHoverClass}
+              >
                 <Link href={dashboardUrl}>Dashboard</Link>
               </Button>
               <ModeToggle />
@@ -214,7 +233,10 @@ export function Navbar({ className }: { className?: string }) {
                       <Link
                         key={route.href}
                         href={route.href}
-                        className="rounded-md border p-3 text-sm font-medium"
+                        className={cn(
+                          "rounded-md border p-3 text-sm font-medium",
+                          navbarHoverClass,
+                        )}
                       >
                         {route.title}
                       </Link>
@@ -227,7 +249,10 @@ export function Navbar({ className }: { className?: string }) {
                     <Link
                       key={route.href}
                       href={route.href}
-                      className="rounded-md px-2 py-2 text-sm font-medium hover:bg-muted"
+                      className={cn(
+                        "rounded-md px-2 py-2 text-sm font-medium",
+                        navbarHoverClass,
+                      )}
                     >
                       {route.title}
                     </Link>
@@ -238,19 +263,28 @@ export function Navbar({ className }: { className?: string }) {
                   <div className="grid gap-2 border-t pt-4">
                     <Link
                       href={ordersUrl}
-                      className="rounded-md px-2 py-2 text-sm font-medium hover:bg-muted"
+                      className={cn(
+                        "rounded-md px-2 py-2 text-sm font-medium",
+                        navbarHoverClass,
+                      )}
                     >
                       Track Order
                     </Link>
                     <Link
                       href={dashboardUrl}
-                      className="rounded-md px-2 py-2 text-sm font-medium hover:bg-muted"
+                      className={cn(
+                        "rounded-md px-2 py-2 text-sm font-medium",
+                        navbarHoverClass,
+                      )}
                     >
                       Dashboard
                     </Link>
                     <Link
                       href="/dashboard-profile"
-                      className="rounded-md px-2 py-2 text-sm font-medium hover:bg-muted"
+                      className={cn(
+                        "rounded-md px-2 py-2 text-sm font-medium",
+                        navbarHoverClass,
+                      )}
                     >
                       Profile
                     </Link>
@@ -285,7 +319,7 @@ function ExploreDropdown() {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="ghost" size="sm">
+        <Button variant="ghost" size="sm" className={navbarHoverClass}>
           Explore
           <ChevronDown className="size-4" />
         </Button>
