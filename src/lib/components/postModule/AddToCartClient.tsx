@@ -4,7 +4,7 @@ import { useRouter } from "next/navigation";
 import * as React from "react";
 import { useId, useMemo, useState } from "react";
 import { toast } from "sonner";
-import { Link, Minus, Plus, ShoppingCart } from "lucide-react";
+import { Minus, Plus, ShoppingCart } from "lucide-react";
 
 import { addToDraftCart } from "@/actions/order-items.action";
 
@@ -50,8 +50,11 @@ export function AddToCartClient({
 
       toast.success("Added to cart!", { id: t });
       router.push("/order-item");
-    } catch (e: any) {
-      toast.error(e?.message ?? "Something went wrong", { id: t });
+    } catch (error: unknown) {
+      toast.error(
+        error instanceof Error ? error.message : "Something went wrong",
+        { id: t },
+      );
     } finally {
       setLoading(false);
     }
@@ -87,8 +90,8 @@ export function AddToCartClient({
         <Separator className="my-4" />
 
         {/* Controls */}
-        <div className="flex flex-col gap-3 sm:flex-row sm:items-end">
-          <div className="flex-1 min-w-[180px]">
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+          <div className="w-full sm:max-w-sm">
             <label
               htmlFor={inputId}
               className="block text-xs font-medium text-muted-foreground"
@@ -142,11 +145,10 @@ export function AddToCartClient({
           <Button
             type="button"
             disabled={!canSubmit || loading}
-            className="h-11 rounded-xl px-6 sm:min-w-[180px]"
+            className="h-11 w-full rounded-xl px-6 sm:w-auto sm:min-w-[180px]"
             onClick={async () => {
               if (!canSubmit || loading) return;
               await onAdd();
-              // if success → router.push("/order-item")
             }}
           >
             {loading ? (
@@ -154,28 +156,11 @@ export function AddToCartClient({
             ) : (
               <>
                 <span>Checkout</span>
-                <span className="ml-2 text-muted-foreground/80">•</span>
+                <span className="ml-2 text-muted-foreground/80">-</span>
                 <span className="ml-2 tabular-nums">{safeQty}</span>
               </>
             )}
           </Button>
-
-          {/* <Button asChild
-            disabled={!canSubmit}
-            className="h-11 rounded-xl px-6 sm:min-w-[180px]"
-            onClick={onAdd}
-          >
-            {loading ? (
-              "Adding..."
-            ) : (
-              <>
-               
-                 <Link href="/order">Checkout</Link>
-                <span className="ml-2 text-muted-foreground/80">•</span>
-                <span className="ml-2 tabular-nums">{safeQty}</span>
-              </>
-            )}
-          </Button> */}
         </div>
       </CardContent>
     </Card>

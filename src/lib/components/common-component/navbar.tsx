@@ -1,6 +1,7 @@
 "use client";
 
 import * as React from "react";
+import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
@@ -92,7 +93,10 @@ function getOrdersUrl(role?: string | null) {
 
 function extractUser(payload: unknown): SessionUser | null {
   if (!payload || typeof payload !== "object") return null;
-  const value = payload as { user?: SessionUser; data?: { user?: SessionUser } };
+  const value = payload as {
+    user?: SessionUser;
+    data?: { user?: SessionUser };
+  };
   return value.user ?? value.data?.user ?? null;
 }
 
@@ -154,9 +158,7 @@ export function Navbar({ className }: { className?: string }) {
     <section className={cn("w-full", className)}>
       <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 md:px-6">
         <Link href="/" className="flex items-center gap-2">
-          <span className="flex size-9 items-center justify-center rounded-md bg-primary text-sm font-semibold text-primary-foreground">
-            FN
-          </span>
+          <BrandLogoMark className="size-10" />
           <span className="text-lg font-semibold tracking-tight">FoodNest</span>
         </Link>
 
@@ -173,7 +175,10 @@ export function Navbar({ className }: { className?: string }) {
                 size="sm"
                 className={cn(navbarHoverClass, active && navbarActiveClass)}
               >
-                <Link href={route.href} aria-current={active ? "page" : undefined}>
+                <Link
+                  href={route.href}
+                  aria-current={active ? "page" : undefined}
+                >
                   {route.title}
                 </Link>
               </Button>
@@ -251,9 +256,7 @@ export function Navbar({ className }: { className?: string }) {
               <SheetHeader>
                 <SheetTitle>
                   <Link href="/" className="flex items-center gap-2">
-                    <span className="flex size-8 items-center justify-center rounded-md bg-primary text-xs font-semibold text-primary-foreground">
-                      FN
-                    </span>
+                    <BrandLogoMark className="size-9" />
                     FoodNest
                   </Link>
                 </SheetTitle>
@@ -318,8 +321,7 @@ export function Navbar({ className }: { className?: string }) {
                       className={cn(
                         "rounded-md px-2 py-2 text-sm font-medium",
                         navbarHoverClass,
-                        isRouteActive(pathname, ordersUrl) &&
-                          navbarActiveClass,
+                        isRouteActive(pathname, ordersUrl) && navbarActiveClass,
                       )}
                     >
                       Track Order
@@ -345,8 +347,7 @@ export function Navbar({ className }: { className?: string }) {
                       className={cn(
                         "rounded-md px-2 py-2 text-sm font-medium",
                         navbarHoverClass,
-                        pathname === "/dashboard-profile" &&
-                          navbarActiveClass,
+                        pathname === "/dashboard-profile" && navbarActiveClass,
                       )}
                     >
                       Profile
@@ -375,6 +376,27 @@ export function Navbar({ className }: { className?: string }) {
         </div>
       </div>
     </section>
+  );
+}
+
+function BrandLogoMark({ className }: { className?: string }) {
+  return (
+    <span
+      className={cn(
+        "flex items-center justify-center rounded-md bg-white p-1 shadow-sm ring-1 ring-border/60",
+        className,
+      )}
+      aria-hidden="true"
+    >
+      <Image
+        src="/foodnest-logo-mark.png"
+        alt=""
+        width={40}
+        height={40}
+        className="size-full object-contain"
+        priority
+      />
+    </span>
   );
 }
 
