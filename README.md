@@ -24,84 +24,146 @@
   </p>
 </div>
 
+---
+
+## Table of Contents
+
+- [About the Project](#about-the-project)
+- [Project Overview](#project-overview)
+- [Problem Statement](#problem-statement)
+- [Solution Overview](#solution-overview)
+- [Key Features](#key-features)
+- [Tech Stack](#tech-stack)
+- [Dependencies](#dependencies)
+- [Screenshots](#screenshots)
+- [Live Demo and Credentials](#live-demo-and-credentials)
+- [Installation and Setup](#installation-and-setup)
+- [Environment Variables](#environment-variables)
+- [API and Architecture](#api-and-architecture)
+- [Folder Structure](#folder-structure)
+- [Available Scripts](#available-scripts)
+- [Contributions](#contributions)
+- [How to Contribute](#how-to-contribute)
+- [License](#license)
+- [Contact](#contact)
+
+---
+
+## About the Project
+
+FoodNest Client is the frontend for a full-stack food ordering system. It gives customers a clean way to browse meals, view providers, manage cart items, place orders, and review meals. Providers can manage meals and order workflows, while admins can manage users, meals, categories, and orders.
+
+The application is built with Next.js App Router, TypeScript, Tailwind CSS 4, Better Auth, Radix UI primitives, reusable components, server actions, and typed service modules.
+
 ## Project Overview
 
-FoodNest is a full-stack food ordering system designed for customers, food
-providers, and administrators. This repository contains the frontend client,
-which provides public browsing, authentication, cart management, order tracking,
-role-aware dashboards, provider workflows, and admin management screens.
+FoodNest supports three main user roles:
 
-The application focuses on a clean user experience, responsive layouts,
-structured API integration, and maintainable feature-driven code organization.
+- `CUSTOMER`
+- `PROVIDER`
+- `ADMIN`
 
-## Important Links
+The frontend includes:
 
-| Resource            | URL                                                                                                        |
-| ------------------- | ---------------------------------------------------------------------------------------------------------- |
-| Frontend Repository | [github.com/FahimMuntasir0417/FoodNest-Client](https://github.com/FahimMuntasir0417/FoodNest-Client)       |
-| Backend Repository  | [github.com/FahimMuntasir0417/FoodNest-Server](https://github.com/FahimMuntasir0417/FoodNest-Server)       |
-| Frontend Live       | [food-nest-client.vercel.app](https://food-nest-client.vercel.app)                                         |
-| Backend Live        | [foodnest-server.onrender.com](https://foodnest-server.onrender.com)                                       |
-| Demo Video          | [Google Drive demo](https://drive.google.com/file/d/12D4k0QztRpl2FCdRIA1xqe82m1IjgwnU/view?usp=drive_link) |
+- Public marketing and browsing pages
+- Authentication screens for login and signup
+- Role-aware dashboard routing
+- Customer order and cart workflows
+- Provider meal and order management
+- Admin management screens
+- API service modules for the FoodNest backend
+- Unit/component tests with Vitest and browser tests with Playwright
 
-## Demo Access
+## Problem Statement
 
-These accounts are intended for project review and demonstration only. Do not
-reuse these credentials for production or personal accounts.
+Food ordering platforms need more than a meal list. Customers need a smooth browsing, cart, checkout, and tracking flow. Providers need controlled access to their own meals and orders. Admins need a central view of platform activity. Without clear role-aware UI and consistent API integration, the product becomes difficult to use and maintain.
 
-| Role     | Email                    | Password    |
-| -------- | ------------------------ | ----------- |
-| Admin    | `admin@admin.com`        | `admin1234` |
-| Provider | `hixemom794@azeriom.com` | `12345@#$`  |
-| Customer | `y41lhw4kb3@ozsaip.com`  | `12345@#$`  |
+## Solution Overview
 
-## Core Features
+FoodNest Client solves this with a feature-focused Next.js frontend. Public routes handle discovery and conversion, dashboard route slots separate admin, provider, and customer workflows, and service/action modules keep backend communication organized. Shared UI components, validation schemas, loading states, and error states keep the experience consistent across the app.
 
-- Public meal browsing with detail pages, pricing, categories, availability,
-  providers, and reviews.
-- Customer cart flow with draft cart creation, quantity management, checkout
-  entry, and order tracking.
-- Role-based authentication and protected dashboards for customer, provider,
-  and admin users.
-- Provider dashboard for meal, category, and order management workflows.
-- Admin dashboard for users, meals, categories, and platform-wide orders.
-- Review and rating flows for meals.
-- Responsive navigation, dark mode support, reusable UI primitives, and
-  polished empty, loading, and error states.
+## Key Features
+
+- Public homepage, about, contact, help, privacy, terms, food, category, provider, and meal detail pages
+- Better Auth login and signup flows
+- Role-based dashboard layout for customers, providers, and admins
+- Customer cart flow with draft order items, quantity management, checkout, and order history
+- Provider dashboard for creating meals, editing meals, managing categories, and updating order status
+- Admin dashboard for users, meals, categories, and all orders
+- Review and rating flows for meals
+- Reusable UI primitives built with Radix UI patterns and local components
+- Responsive navigation, dark mode support, loading states, empty states, and error boundaries
+- API integration with the deployed FoodNest backend
+- Unit/component tests with Vitest and Testing Library
+- End-to-end testing with Playwright
 
 ## Tech Stack
 
-| Area                 | Technology                                      |
-| -------------------- | ----------------------------------------------- |
-| Framework            | Next.js 16, React 18                            |
-| Language             | TypeScript                                      |
-| Styling              | Tailwind CSS 4                                  |
-| UI Primitives        | Radix UI, shadcn-style components, Lucide icons |
-| Authentication       | Better Auth                                     |
-| Forms and Validation | React Hook Form, TanStack Form, Zod             |
-| State and UX         | React hooks, Sonner toasts, next-themes         |
-| Testing              | Vitest, Testing Library, Playwright             |
-| Tooling              | ESLint, Prettier, Husky, lint-staged            |
-| Deployment           | Vercel                                          |
+- **Frontend:** Next.js 16, React 18, TypeScript, Tailwind CSS 4
+- **Backend:** Node.js, Express 5, PostgreSQL, Prisma, Better Auth
+- **Authentication:** Better Auth, session cookies, Google OAuth support
+- **Forms and Validation:** React Hook Form, TanStack Form, Zod
+- **UI:** Radix UI, shadcn-style components, Lucide React, Sonner, next-themes
+- **Testing:** Vitest, Testing Library, Playwright
+- **Tools:** pnpm, ESLint, Prettier, Husky, lint-staged, Vercel, Git, VS Code
 
-## Application Roles
+## Dependencies
 
-### Customer
+Major runtime dependencies:
 
-Customers can explore meals, view provider information, add meals to a cart,
-place orders, track order status, and manage their profile.
+```json
+{
+  "@hookform/resolvers": "^5.2.2",
+  "@radix-ui/react-dialog": "^1.1.15",
+  "@radix-ui/react-dropdown-menu": "^2.1.16",
+  "@radix-ui/react-navigation-menu": "^1.2.14",
+  "@t3-oss/env-nextjs": "^0.13.10",
+  "@tanstack/react-form": "^1.28.0",
+  "better-auth": "^1.4.17",
+  "lucide-react": "^0.563.0",
+  "next": "16.1.4",
+  "next-themes": "^0.4.6",
+  "radix-ui": "^1.4.3",
+  "react": "^18.3.1",
+  "react-dom": "18.3.1",
+  "react-hook-form": "^7.71.1",
+  "sonner": "^2.0.7",
+  "tailwind-merge": "^3.4.0",
+  "zod": "^4.3.6"
+}
+```
 
-### Provider
+Development dependencies include Playwright, Vitest, Testing Library, TypeScript, ESLint, Prettier, Husky, lint-staged, Tailwind CSS, and React/Node type packages.
 
-Providers can manage their dashboard workflows, create and update meals, manage
-categories, and process customer orders.
+## Screenshots
 
-### Admin
+Project visual assets are available in [`public`](public):
 
-Admins can oversee platform users, meals, categories, and all orders through a
-centralized dashboard experience.
+- [`foodnest-logo-mark.png`](public/foodnest-logo-mark.png)
 
-## Getting Started
+The repository also includes a [`screenshots`](screenshots) directory for project screenshots.
+
+## Live Demo and Credentials
+
+### Project Links
+
+- Frontend Repo: https://github.com/FahimMuntasir0417/FoodNest-Client
+- Backend Repo: https://github.com/FahimMuntasir0417/FoodNest-Server
+- Frontend Live: https://food-nest-client.vercel.app
+- Backend Live: https://foodnest-server.onrender.com
+- Demo Video: https://drive.google.com/file/d/12D4k0QztRpl2FCdRIA1xqe82m1IjgwnU/view?usp=drive_link
+
+### Demo Credentials
+
+Use demo credentials only for non-production demonstrations.
+
+| Role | Email | Password |
+| --- | --- | --- |
+| Admin | `admin@admin.com` | `admin1234` |
+| Provider | `hixemom794@azeriom.com` | `12345@#$` |
+| Customer | `y41lhw4kb3@ozsaip.com` | `12345@#$` |
+
+## Installation and Setup
 
 ### Prerequisites
 
@@ -109,76 +171,174 @@ centralized dashboard experience.
 - pnpm 10 or later
 - Access to the FoodNest backend API
 
-### Installation
+### Setup
+
+1. Clone the repository:
+
+```bash
+git clone https://github.com/FahimMuntasir0417/FoodNest-Client
+cd FoodNest-Client
+```
+
+2. Install dependencies:
 
 ```bash
 pnpm install
 ```
 
-### Environment Variables
-
-Create a `.env` file from the example file:
+3. Create a local environment file:
 
 ```bash
 cp .env.example .env
 ```
 
-Update the values for your local or deployed backend:
+Windows PowerShell:
 
-```bash
-NEXT_PUBLIC_API_URL=
-NEXT_PUBLIC_SITE_URL=
-NEXT_PUBLIC_AUTH_URL=
-
-BACKEND_URL=
-API_URL=
-AUTH_URL=
-FRONTEND_URL=
+```powershell
+Copy-Item .env.example .env
 ```
 
-### Run Locally
+4. Update environment variables for your local or deployed backend.
+
+5. Run the development server:
 
 ```bash
 pnpm dev
 ```
 
-Open the app at:
+6. Open the app:
 
 ```txt
 http://localhost:3000
 ```
 
-## Available Scripts
+## Environment Variables
 
-| Command             | Description                              |
-| ------------------- | ---------------------------------------- |
-| `pnpm dev`          | Start the local development server       |
-| `pnpm build`        | Create a production build                |
-| `pnpm start`        | Start the production server              |
-| `pnpm lint`         | Run ESLint                               |
-| `pnpm type-check`   | Run TypeScript type checking             |
-| `pnpm test`         | Run unit and component tests             |
-| `pnpm test:watch`   | Run tests in watch mode                  |
-| `pnpm test:e2e`     | Run Playwright end-to-end tests          |
-| `pnpm format`       | Format files with Prettier               |
-| `pnpm format:check` | Check formatting without writing changes |
+Create `.env` in the project root using [`.env.example`](.env.example) as the reference.
 
-## Project Structure
+```env
+NEXT_PUBLIC_API_URL=https://foodnest-server.onrender.com/api/v1
+NEXT_PUBLIC_SITE_URL=http://localhost:3000
+NEXT_PUBLIC_AUTH_URL=http://localhost:3000/api/auth
+
+BACKEND_URL=https://foodnest-server.onrender.com
+API_URL=https://foodnest-server.onrender.com/api/v1
+AUTH_URL=https://foodnest-server.onrender.com/api/auth
+FRONTEND_URL=http://localhost:3000
+```
+
+Important notes:
+
+- Public variables prefixed with `NEXT_PUBLIC_` are exposed to the browser.
+- Server-only variables are used by server actions, API helpers, and auth integration.
+- Do not commit production secrets or private environment values.
+
+## API and Architecture
+
+### Backend API
 
 ```txt
-src/
-  actions/            Server actions for mutations and authenticated flows
-  app/                Next.js App Router pages, layouts, and route groups
-  components/         Shared UI, dashboard, home, contact, and meal components
-  config/             Site and environment configuration
-  constants/          Shared constants
-  features/           Feature-focused schemas, services, types, and components
-  hooks/              Reusable React hooks
-  lib/                API clients, auth helpers, utilities, and legacy modules
-  routes/             Role-based route definitions
-  services/           API service modules
-  types/              Shared TypeScript type definitions
+https://foodnest-server.onrender.com
 ```
+
+Application API:
+
+```txt
+https://foodnest-server.onrender.com/api/v1
+```
+
+Auth API:
+
+```txt
+https://foodnest-server.onrender.com/api/auth
+```
+
+### High-level Flow
+
+```text
+Page / Component
+  -> Server action or feature service
+  -> Shared API helper
+  -> FoodNest backend API
+  -> Typed UI state
+```
+
+### Architecture Highlights
+
+- `src/app` contains App Router route groups and dashboard slots.
+- `src/actions` contains server actions for authenticated mutations and data flows.
+- `src/services` contains API service modules for backend resources.
+- `src/features` contains feature-specific schemas, services, types, and components.
+- `src/lib` contains API clients, auth helpers, utilities, and legacy shared modules.
+- `src/routes` contains role-based dashboard route definitions.
+- `src/proxy.ts` protects route access at the edge/proxy layer.
+
+### Main Routes
+
+- `/`
+- `/home`
+- `/about`
+- `/contact`
+- `/help`
+- `/privacy`
+- `/terms`
+- `/login`
+- `/signup`
+- `/food`
+- `/maels`
+- `/maels/[id]`
+- `/order-item`
+- `/order`
+- `/dashboard-profile`
+- `/customer-dashboard`
+- `/provider-dashboard`
+- `/admin-dashboard`
+
+## Folder Structure
+
+```plaintext
+foodnest-client/
+|
++-- e2e/
++-- public/
+|   +-- foodnest-logo-mark.png
++-- screenshots/
++-- src/
+|   +-- actions/
+|   +-- app/
+|   |   +-- (commonlayout)/
+|   |   +-- (dashboardLayout)/
+|   |   +-- api/
+|   +-- components/
+|   +-- config/
+|   +-- constants/
+|   +-- features/
+|   +-- hooks/
+|   +-- lib/
+|   +-- routes/
+|   +-- services/
+|   +-- types/
++-- .env.example
++-- package.json
++-- playwright.config.ts
++-- tsconfig.json
++-- vitest.config.ts
+```
+
+## Available Scripts
+
+| Command | Description |
+| --- | --- |
+| `pnpm dev` | Start the local development server |
+| `pnpm build` | Create a production build |
+| `pnpm start` | Start the production server |
+| `pnpm lint` | Run ESLint |
+| `pnpm type-check` | Run TypeScript type checking |
+| `pnpm test` | Run unit and component tests |
+| `pnpm test:watch` | Run tests in watch mode |
+| `pnpm test:e2e` | Run Playwright end-to-end tests |
+| `pnpm format` | Format files with Prettier |
+| `pnpm format:check` | Check formatting without writing changes |
 
 ## Quality Workflow
 
@@ -212,26 +372,43 @@ For production deployment:
 3. Run the production build locally with `pnpm build`.
 4. Deploy from the connected GitHub repository.
 
-## Backend
+## Quality Signals
 
-The backend API is maintained in a separate repository:
+This README is structured to show:
 
-```txt
-https://github.com/FahimMuntasir0417/FoodNest-Server
-```
+- Clear problem understanding for a food ordering frontend
+- Clean installation and setup steps
+- Evidence of system design thinking through route groups, dashboard slots, service modules, and server actions
+- Security awareness around environment variables, auth URLs, role-based access, and demo credentials
+- Scalability considerations through feature folders, typed services, reusable components, tests, and deployment workflow
 
-Live backend:
+## Contributions
 
-```txt
-https://foodnest-server.onrender.com
-```
+If this is a team project, list contributors here.
 
-## Repository Topics
+| Name | Role | Contributions |
+| --- | --- | --- |
+| Member-1 | Role | Contributions |
+| Member-2 | Role | Contributions |
 
-`nextjs` `react` `typescript` `tailwindcss` `food-ordering`
-`restaurant-app` `better-auth` `radix-ui` `vercel`
+## How to Contribute
 
-## Author
+- Fork the project.
+- Create a branch: `git checkout -b feature/AmazingFeature`.
+- Commit changes: `git commit -m "Add some AmazingFeature"`.
+- Push the branch: `git push origin feature/AmazingFeature`.
+- Open a pull request.
 
-Built and maintained by
-[Fahim Muntasir](https://github.com/FahimMuntasir0417).
+## License
+
+Distributed under the MIT License. See [`LICENSE`](LICENSE) for more information.
+
+## Contact
+
+- **Live URL:** [FoodNest Client](https://food-nest-client.vercel.app)
+- **Backend Live:** [FoodNest Server](https://foodnest-server.onrender.com)
+- **Frontend Repo:** [FoodNest-Client](https://github.com/FahimMuntasir0417/FoodNest-Client)
+- **Backend Repo:** [FoodNest-Server](https://github.com/FahimMuntasir0417/FoodNest-Server)
+- **Demo Video:** [FoodNest Demo](https://drive.google.com/file/d/12D4k0QztRpl2FCdRIA1xqe82m1IjgwnU/view?usp=drive_link)
+- **Email:** [fahimmuntasirbejoy@gmail.com](mailto:fahimmuntasirbejoy@gmail.com)
+- **Portfolio:** [Fahim Portfolio](https://fahim-portfolio-dun.vercel.app/)
